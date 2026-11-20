@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Catworking Studio</title>
+<link rel="stylesheet" href="studio.css">
+</head>
+<body>
+<div class="st-app" id="st-app">
+  <header class="st-top">
+    <button class="st-b st-pname" data-st="menu" id="st-pname">Проект ▾</button>
+    <button class="st-b st-ic" data-st="undo" id="st-undo" aria-label="Отменить">↶</button>
+    <button class="st-b st-ic" data-st="redo" id="st-redo" aria-label="Вернуть">↷</button>
+    <span class="st-stat" id="st-stat"></span>
+    <button class="st-b st-ic" data-st="theme" id="st-theme" aria-label="Тема студии">◐</button>
+  </header>
+  <aside class="st-side st-left" id="st-left">
+    <div class="st-tabs" id="st-tabs"></div>
+    <div id="st-lbody"></div>
+  </aside>
+  <main class="st-main" id="st-main">
+    <div class="st-canvas" id="st-canvas"></div>
+    <div class="st-zoom">
+      <button class="st-b st-ic" data-st="zout" aria-label="Уменьшить">−</button>
+      <span id="st-zl">100%</span>
+      <button class="st-b st-ic" data-st="zin" aria-label="Увеличить">+</button>
+      <button class="st-b" data-st="zfit">По экрану</button>
+    </div>
+  </main>
+  <aside class="st-side st-right" id="st-right">
+    <h3 class="st-h">Инспектор</h3>
+    <div id="st-rbody"></div>
+  </aside>
+  <div class="st-dock">
+    <button class="st-b" data-st="left">Слои</button>
+    <button class="st-b" data-st="right">Инспектор</button>
+  </div>
+</div>
+<div class="st-toast" id="st-toast" role="status"></div>
+<script src="st-store.js"></script>
+<script src="st-io.js"></script>
+<script src="st-canvas.js"></script>
+<script src="st-ui.js"></script>
+<script>try{ST.ui.boot();}catch(e){document.body.insertAdjacentHTML('afterbegin','<p style="padding:16px;font:16px sans-serif">Студия не запустилась: '+String(e.message).replace(/</g,'&lt;')+'</p>');}</script>
+</body>
+</html>

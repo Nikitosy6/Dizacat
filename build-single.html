@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Сборка studio.html</title>
+<style>body{font:16px/1.4 system-ui;padding:16px;max-width:560px}button,input{font:inherit;min-height:44px}pre{white-space:pre-wrap}</style></head>
+<body><h1>Сборка одного файла</h1>
+<p>Выберите все файлы студии разом: <b>index.html, studio.css, st-store.js, st-io.js, st-canvas.js, st-ui.js</b>. Получится <b>studio.html</b>, работающий офлайн из одного файла.</p>
+<input type="file" id="f" multiple> <button id="b">Собрать</button><pre id="m"></pre>
+<script>
+document.getElementById('b').onclick=function(){
+  var fs=[].slice.call(document.getElementById('f').files),m=document.getElementById('m'),got={},n=0;
+  if(!fs.length){m.textContent='Файлы не выбраны.';return;}
+  fs.forEach(function(f){var r=new FileReader();r.onload=function(){got[f.name]=String(r.result);if(++n===fs.length)go();};r.readAsText(f);});
+  function go(){
+    if(!got['index.html']){m.textContent='Нет index.html';return;}
+    var html=got['index.html'],miss=[];
+    html=html.replace(/<link rel="stylesheet" href="([^"]+)">/g,function(a,u){if(got[u])return '<style>\n'+got[u]+'\n</style>';miss.push(u);return a;});
+    html=html.replace(/<script src="([^"]+)"><\/script>/g,function(a,u){if(got[u])return '<script>\n'+got[u].replace(/<\/script/gi,'<\\/script')+'\n<\/script>';miss.push(u);return a;});
+    if(miss.length){m.textContent='Не хватает файлов: '+miss.join(', ');return;}
+    var url=URL.createObjectURL(new Blob([html],{type:'text/html'})),a=document.createElement('a');
+    a.href=url;a.download='studio.html';document.body.appendChild(a);a.click();a.remove();
+    m.textContent='Готово: studio.html, '+Math.round(html.length/1024)+' КБ.';
+  }
+};
+</script></body></html>

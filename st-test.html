@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Тесты студии</title>
+<style>body{font:16px system-ui;padding:16px}.ok{color:#1a7f37}.bad{color:#c0392b;font-weight:700}#sum{font-size:20px;margin:12px 0}</style></head>
+<body><h1>Тесты Catworking Studio</h1><div id="sum">выполняются…</div><div id="out"></div>
+<script src="st-store.js"></script><script src="st-io.js"></script>
+<script>
+ST.io.cfg={db:'catworking-studio-test',ls:'st-test-current'}; /* не трогаем рабочие данные */
+var out=document.getElementById('out'),bad=0,all=0,q=Promise.resolve();
+function T(name,fn){q=q.then(function(){return fn();}).then(function(){all++;out.insertAdjacentHTML('beforeend','<div class="ok">✓ '+name+'</div>');},
+  function(e){all++;bad++;out.insertAdjacentHTML('beforeend','<div class="bad">✗ '+name+': '+ST.esc(e&&e.message||e)+'</div>');});}
+function eq(a,b,m){if(a!==b)throw new Error((m||'')+' ожидалось '+JSON.stringify(b)+', получено '+JSON.stringify(a));}
+T('пустой проект проходит проверку',function(){eq(ST.validate(ST.blank()),'');});
+T('JSON туда-обратно без потерь',function(){var p=ST.blank('Т'),r=ST.io.parse(JSON.stringify(p));eq(JSON.stringify(r.project),JSON.stringify(p));});
+T('битый файл не принимается',function(){
+  ['{bad','null','[]','{"schema":1}','{"schema":99,"meta":{},"tokens":{"light":{},"dark":{}},"components":[],"assets":{},"screens":[]}',
+   '{"schema":1,"meta":{},"tokens":{"light":{},"dark":{}},"components":[],"assets":{},"screens":[{"id":"a"}]}'
+  ].forEach(function(t){if(!ST.io.parse(t).error)throw new Error('принят: '+t.slice(0,40));});});
+T('отмена и возврат',function(){ST.set(ST.blank('A'));ST.renameProject('B');eq(ST.p.meta.name,'B');
+  ST.undo();eq(ST.p.meta.name,'A');ST.redo();eq(ST.p.meta.name,'B');});
+T('новое действие сбрасывает «вперёд»',function(){ST.set(ST.blank('A'));ST.renameProject('B');ST.undo();ST.renameProject('C');eq(ST.redoS.length,0);});
+T('история не больше 50',function(){ST.set(ST.blank('A'));for(var i=0;i<60;i++)ST.renameProject('N'+i);eq(ST.undoS.length,50);});
+T('пустое действие не пишется в историю',function(){ST.set(ST.blank('A'));eq(ST.renameProject('A'),false);eq(ST.undoS.length,0);});
+T('ошибка в действии не меняет проект',function(){ST.set(ST.blank('A'));var s=JSON.stringify(ST.p),e=0;
+  ST.on(function(k){if(k==='error')e++;});eq(ST.do('сбой',function(){throw new Error('x');}),false);eq(JSON.stringify(ST.p),s);eq(e,1);});
+T('сохранение и загрузка из хранилища',function(){ST.set(ST.blank('Хранилище'));ST.renameProject('Хранилище 2');
+  return ST.io.flush().then(function(){return ST.io.load();}).then(function(r){eq(r.project&&r.project.meta.name,'Хранилище 2');eq(ST.dirty,false);});});
+T('версий не больше 20',function(){var p=0,t=JSON.stringify(ST.blank('S'));
+  function add(i){return i>=25?Promise.resolve():ST.io.snap(t,'v'+i).then(function(){return add(i+1);});}
+  return add(0).then(function(){return ST.io.snaps();}).then(function(a){eq(a.length,20);});});
+q.then(function(){var s=document.getElementById('sum');s.textContent=bad?('Провалено: '+bad+' из '+all):('Все '+all+' тестов пройдены');s.className=bad?'bad':'ok';});
+</script></body></html>
