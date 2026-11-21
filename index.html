@@ -13,6 +13,7 @@
     <button class="st-b st-ic" data-st="undo" id="st-undo" aria-label="Отменить">↶</button>
     <button class="st-b st-ic" data-st="redo" id="st-redo" aria-label="Вернуть">↷</button>
     <span class="st-stat" id="st-stat"></span>
+    <button class="st-b" data-st="pth" id="st-pth" aria-label="Тема проекта">☀🌙</button>
     <button class="st-b st-ic" data-st="theme" id="st-theme" aria-label="Тема студии">◐</button>
   </header>
   <aside class="st-side st-left" id="st-left">
@@ -38,9 +39,11 @@
   </div>
 </div>
 <div class="st-toast" id="st-toast" role="status"></div>
+<script src="st-tokens.js"></script>
 <script src="st-store.js"></script>
 <script src="st-io.js"></script>
 <script src="st-canvas.js"></script>
+<script src="st-tokui.js"></script>
 <script src="st-ui.js"></script>
 <script>try{ST.ui.boot();}catch(e){document.body.insertAdjacentHTML('afterbegin','<p style="padding:16px;font:16px sans-serif">Студия не запустилась: '+String(e.message).replace(/</g,'&lt;')+'</p>');}</script>
 </body>
