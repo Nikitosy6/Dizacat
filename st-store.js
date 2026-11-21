@@ -1,7 +1,7 @@
 /* Catworking Studio: проект, команды, история (отмена/возврат). Только данные, без DOM. */
 (function(){'use strict';
 var ST=window.ST=window.ST||{};
-ST.SCHEMA=1; ST.HIST_MAX=50;
+ST.SCHEMA=2; ST.HIST_MAX=50;
 ST.p=null; ST.cur=null; ST.dirty=false; ST.undoS=[]; ST.redoS=[];
 var n=0,hs=[];
 function isO(x){return !!x&&typeof x==='object'&&!Array.isArray(x);}
@@ -10,12 +10,22 @@ ST.esc=function(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){re
 ST.on=function(f){hs.push(f);};
 ST.emit=function(k,a){hs.slice().forEach(function(f){try{f(k,a);}catch(e){if(window.console)console.error(e);}});};
 ST.blank=function(name){
-  return {schema:ST.SCHEMA,meta:{name:name||'Новый проект',created:Date.now(),updated:Date.now()},
-    tokens:{light:{},dark:{}},components:[],assets:{},
+  var d={schema:ST.SCHEMA,meta:{name:name||'Новый проект',created:Date.now(),updated:Date.now()},
+    tokens:{light:{},dark:{},info:{},grad:{}},components:[],assets:{},
     screens:[{id:ST.uid('s'),name:'Экран 1',w:390,h:844,
       root:{id:ST.uid('n'),type:'frame',name:'Экран',layout:{dir:'column'},style:{},props:{},children:[]}}]};
+  if(ST.tok)ST.tok.seed(d); /* начальный набор токенов (Шаг 2) */
+  return d;
 };
-ST.migrate=function(p){return p;}; /* сюда добавляются шаги обновления схемы */
+/* Шаги обновления схемы. 1→2 (Шаг 2): tokens.info и tokens.grad; пустой набор токенов заполняется начальным. */
+ST.migrate=function(p){
+  if(p.schema<2){
+    p.tokens.info=isO(p.tokens.info)?p.tokens.info:{};p.tokens.grad=isO(p.tokens.grad)?p.tokens.grad:{};
+    if(!Object.keys(p.tokens.light).length&&!Object.keys(p.tokens.dark).length&&ST.tok)ST.tok.seed(p);
+    p.schema=2;
+  }
+  return p;
+};
 ST.validate=function(p){
   if(!isO(p))return 'в файле нет проекта';
   if(typeof p.schema!=='number')return 'нет номера версии схемы (поле schema)';
@@ -23,6 +33,7 @@ ST.validate=function(p){
   if(p.schema<1)return 'неизвестная версия схемы';
   if(!isO(p.meta))return 'нет раздела meta';
   if(!isO(p.tokens)||!isO(p.tokens.light)||!isO(p.tokens.dark))return 'нет раздела tokens (light и dark)';
+  if((p.tokens.info!==undefined&&!isO(p.tokens.info))||(p.tokens.grad!==undefined&&!isO(p.tokens.grad)))return 'повреждён раздел tokens (info или grad)';
   if(!Array.isArray(p.components)||!isO(p.assets))return 'нет раздела components или assets';
   if(!Array.isArray(p.screens))return 'нет списка экранов';
   for(var i=0;i<p.screens.length;i++){var s=p.screens[i];

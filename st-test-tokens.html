@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Тесты токенов (Шаг 2)</title>
+<style>body{font:16px system-ui;padding:16px}.ok{color:#1a7f37}.bad{color:#c0392b;font-weight:700}#sum{font-size:20px;margin:12px 0}</style></head>
+<body><h1>Тесты токенов Catworking Studio</h1><div id="sum">выполняются…</div><div id="out"></div>
+<script src="st-tokens.js"></script><script src="st-store.js"></script><script src="st-io.js"></script>
+<script>
+ST.io.cfg={db:'catworking-studio-test',ls:'st-test-current'}; /* не трогаем рабочие данные */
+var out=document.getElementById('out'),bad=0,all=0,q=Promise.resolve();
+function T(name,fn){q=q.then(function(){return fn();}).then(function(){all++;out.insertAdjacentHTML('beforeend','<div class="ok">✓ '+name+'</div>');},
+  function(e){all++;bad++;out.insertAdjacentHTML('beforeend','<div class="bad">✗ '+name+': '+ST.esc(e&&e.message||e)+'</div>');});}
+function eq(a,b,m){if(a!==b)throw new Error((m||'')+' ожидалось '+JSON.stringify(b)+', получено '+JSON.stringify(a));}
+window.addEventListener('load',function(){
+  var s=document.createElement('script');s.src='st-test-tokens.js';
+  s.onload=function(){q.then(function(){var m=document.getElementById('sum');m.textContent=bad?('Провалено: '+bad+' из '+all):('Все '+all+' тестов пройдены');m.className=bad?'bad':'ok';});};
+  document.body.appendChild(s);
+});
+</script></body></html>

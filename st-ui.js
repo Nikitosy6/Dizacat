@@ -43,7 +43,10 @@ ui.menu=function(){
       if(r.cancel)return;
       if(r.error)return ui.error('Файл не открылся: '+r.error+'. Текущий проект не тронут.');
       return backup().then(function(){ST.set(r.project,{dirty:true});ui.fit();ui.toast('Проект открыт');});});
-    if(k==='save'){var n=ST.io.download(ST.p);ui.toast('Файл '+n+' скачан (папка «Загрузки»)');}
+    if(k==='save'){
+      var pr=ST.tok?ST.tok.problems(ST.p):[];
+      var go=pr.length?ui.confirm('Есть токены без значения','Токенов с проблемами: '+pr.length+' (не заданы в обеих темах или неверный цвет). Файл сохранится, но дизайн лучше сначала исправить. Сохранить сейчас?','Сохранить'):Promise.resolve(true);
+      return go.then(function(ok){if(ok){var n=ST.io.download(ST.p);ui.toast('Файл '+n+' скачан (папка «Загрузки»)');}});}
     if(k==='snaps')return ui.snaps();
   });
 };
@@ -79,18 +82,21 @@ ui.render=function(){
   $('#st-pname').textContent=ST.title()+' ▾';
   $('#st-undo').disabled=!ST.undoS.length;$('#st-redo').disabled=!ST.redoS.length;
   $('#st-stat').textContent=ST.dirty?'сохраняется…':'сохранено';
+  var bw=ST.tokui?ST.tokui.badge():0;
   $('#st-tabs').innerHTML=[['layers','Слои'],['comp','Компоненты'],['tok','Токены']].map(function(x){
-    return '<button class="st-b'+(ui.tab===x[0]?' on':'')+'" data-st="tab:'+x[0]+'">'+x[1]+'</button>';}).join('');
+    return '<button class="st-b'+(ui.tab===x[0]?' on':'')+'" data-st="tab:'+x[0]+'">'+x[1]+(x[0]==='tok'&&bw?' <span class="st-warn" aria-label="Предупреждений: '+bw+'">⚠'+bw+'</span>':'')+'</button>';}).join('');
   var L=$('#st-lbody');
   if(ui.tab==='layers'){
     L.innerHTML=ST.p.screens.map(function(s){
       return '<button class="st-b st-row'+(sc&&s.id===sc.id?' on':'')+'" data-st="scr:'+h(s.id)+'">'+h(s.name)+'</button>';}).join('')+
       '<button class="st-b st-row" data-st="addscr">＋ Экран</button>';
-  }else L.innerHTML='<p class="st-mut">'+(ui.tab==='tok'?'Токены цвета появятся в Шаге 2.':'Компоненты появятся в Шаге 5.')+'</p>';
-  $('#st-rbody').innerHTML='<label class="st-lb">Название проекта<input class="st-in" data-f="pname" maxlength="80" value="'+h(ST.title())+'"></label>'+
+  }else if(ui.tab==='tok'&&ST.tokui)L.innerHTML=ST.tokui.list();
+  else L.innerHTML='<p class="st-mut">Компоненты появятся в Шаге 5.</p>';
+  $('#st-rbody').innerHTML=(ui.tab==='tok'&&ST.tokui?ST.tokui.inspector()+'<div class="st-lh">Проект</div>':'')+'<label class="st-lb">Название проекта<input class="st-in" data-f="pname" maxlength="80" value="'+h(ST.title())+'"></label>'+
     (sc?'<label class="st-lb">Название экрана<input class="st-in" data-f="sname" maxlength="80" value="'+h(sc.name)+'"></label>'+
     '<p class="st-mut">Размер экрана: '+h(sc.w)+'×'+h(sc.h)+'</p>':'')+
     '<p class="st-mut">Шагов в истории: '+ST.undoS.length+' из '+ST.HIST_MAX+'</p>';
+  if(ST.tokui)ST.tokui.sync();
   ST.canvas.render();
 };
 function bind(){
@@ -102,6 +108,7 @@ function bind(){
     else if(a==='undo')ST.undo();
     else if(a==='redo')ST.redo();
     else if(a==='theme')toggleTheme();
+    else if(a==='pth')ST.tok.cycleView();
     else if(a==='left'||a==='right')ui.sheetTo(a);
     else if(a==='zin')ST.canvas.zoomBy(0.1);
     else if(a==='zout')ST.canvas.zoomBy(-0.1);
@@ -125,7 +132,7 @@ function bind(){
   window.addEventListener('resize',function(){ST.canvas.render();});
 }
 ui.boot=function(){
-  theme();ST.io.watch();bind();
+  theme();ST.io.watch();bind();if(ST.tokui)ST.tokui.bind();
   ST.on(function(k,a){
     if(k==='error')ui.error(a);else if(k==='toast')ui.toast(a);else if(k!=='saved')ui.render();else $('#st-stat').textContent='сохранено';});
   ST.io.load().then(function(r){
