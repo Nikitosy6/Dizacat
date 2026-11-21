@@ -7,7 +7,7 @@ function st(id){var r=null;ST.p.screens[0].root.children.forEach(function(n){if(
 function has(a,s){if(a.indexOf(s)<0)throw new Error('нет «'+s+'» в '+JSON.stringify(a));}
 
 T('начальный набор: 22 цвета в обеих темах, градиент tile, проект валиден',function(){fresh();
-  eq(ST.tok.names(ST.p).length,22);eq(ST.validate(ST.p),'');eq(ST.p.schema,2);
+  eq(ST.tok.names(ST.p).length,22);eq(ST.validate(ST.p),'');eq(ST.p.schema,ST.SCHEMA);
   eq(ST.tok.problems(ST.p).length,0);eq(!!ST.p.tokens.grad.tile,true);
   eq(ST.p.tokens.light.ac,'#f59a23');eq(ST.p.tokens.dark.ac,'#f5a02e');eq(ST.p.tokens.info.card.app,'--panel');});
 T('имена: кириллица, пробелы, дубли и пустое запрещены, заглавные приводятся к строчным',function(){fresh();
@@ -88,9 +88,9 @@ T('css() переводит ссылки в var()',function(){
   eq(ST.tok.css('0 4px 0 @ln'),'0 4px 0 var(--ln)');eq(ST.tok.css('@g:tile'),'var(--g-tile)');});
 T('миграция 1→2: пустые токены заполняются, чужие значения остаются',function(){
   var a={schema:1,meta:{},tokens:{light:{},dark:{}},components:[],assets:{},screens:[]};
-  eq(ST.validate(a),'');var m=ST.migrate(a);eq(m.schema,2);eq(Object.keys(m.tokens.light).length,22);eq(typeof m.tokens.grad.tile,'object');
+  eq(ST.validate(a),'');var m=ST.migrate(a);eq(m.schema,ST.SCHEMA);eq(Object.keys(m.tokens.light).length,22);eq(typeof m.tokens.grad.tile,'object');
   var b={schema:1,meta:{},tokens:{light:{x:'#111'},dark:{x:'#eee'}},components:[],assets:{},screens:[]};
-  m=ST.migrate(b);eq(Object.keys(m.tokens.light).join(),'x');eq(JSON.stringify(m.tokens.info),'{}');eq(m.schema,2);});
+  m=ST.migrate(b);eq(Object.keys(m.tokens.light).join(),'x');eq(JSON.stringify(m.tokens.info),'{}');eq(m.schema,ST.SCHEMA);});
 T('повреждённые info/grad не принимаются, пустой проект с токенами туда-обратно без потерь',function(){
   var p=ST.blank('Т');p.tokens.info=[];eq(ST.validate(p)!=='',true);
   var q=ST.blank('Т2'),r=ST.io.parse(JSON.stringify(q));eq(JSON.stringify(r.project),JSON.stringify(q));});

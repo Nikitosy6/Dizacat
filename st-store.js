@@ -1,7 +1,7 @@
 /* Catworking Studio: проект, команды, история (отмена/возврат). Только данные, без DOM. */
 (function(){'use strict';
 var ST=window.ST=window.ST||{};
-ST.SCHEMA=2; ST.HIST_MAX=50;
+ST.SCHEMA=3; ST.HIST_MAX=50;
 ST.p=null; ST.cur=null; ST.dirty=false; ST.undoS=[]; ST.redoS=[];
 var n=0,hs=[];
 function isO(x){return !!x&&typeof x==='object'&&!Array.isArray(x);}
@@ -15,15 +15,18 @@ ST.blank=function(name){
     screens:[{id:ST.uid('s'),name:'Экран 1',w:390,h:844,
       root:{id:ST.uid('n'),type:'frame',name:'Экран',layout:{dir:'column'},style:{},props:{},children:[]}}]};
   if(ST.tok)ST.tok.seed(d); /* начальный набор токенов (Шаг 2) */
+  if(ST.fonts)ST.fonts.seed(d); /* роли шрифтов и стили текста (Шаг 3) */
   return d;
 };
-/* Шаги обновления схемы. 1→2 (Шаг 2): tokens.info и tokens.grad; пустой набор токенов заполняется начальным. */
+/* Шаги обновления схемы. 1→2 (Шаг 2): tokens.info и tokens.grad; пустой набор токенов заполняется начальным.
+   2→3 (Шаг 3): fonts (гарнитура по ролям) и text (стили текста); недостающее добавляется, чужое не трогается. */
 ST.migrate=function(p){
   if(p.schema<2){
     p.tokens.info=isO(p.tokens.info)?p.tokens.info:{};p.tokens.grad=isO(p.tokens.grad)?p.tokens.grad:{};
     if(!Object.keys(p.tokens.light).length&&!Object.keys(p.tokens.dark).length&&ST.tok)ST.tok.seed(p);
     p.schema=2;
   }
+  if(p.schema<3){if(ST.fonts)ST.fonts.seed(p);p.schema=3;}
   return p;
 };
 ST.validate=function(p){
@@ -34,6 +37,7 @@ ST.validate=function(p){
   if(!isO(p.meta))return 'нет раздела meta';
   if(!isO(p.tokens)||!isO(p.tokens.light)||!isO(p.tokens.dark))return 'нет раздела tokens (light и dark)';
   if((p.tokens.info!==undefined&&!isO(p.tokens.info))||(p.tokens.grad!==undefined&&!isO(p.tokens.grad)))return 'повреждён раздел tokens (info или grad)';
+  if(ST.fonts){var fe=ST.fonts.validate(p);if(fe)return fe;}
   if(!Array.isArray(p.components)||!isO(p.assets))return 'нет раздела components или assets';
   if(!Array.isArray(p.screens))return 'нет списка экранов';
   for(var i=0;i<p.screens.length;i++){var s=p.screens[i];

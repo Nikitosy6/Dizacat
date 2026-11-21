@@ -10,10 +10,11 @@ cv.render=function(){
   if(zl)zl.textContent=Math.round(cv.zoom*100)+'%';
   if(!sc){host.innerHTML='<div class="st-empty">Нет экранов. Добавьте экран в списке слоёв.</div>';return;}
   var z=cv.zoom,w=Number(sc.w)||390,h=Number(sc.h)||844,k=(sc.root.children||[]).length,ts=themes(),n=ts.length;
+  var fontTab=!k&&ST.fontui&&ST.ui&&ST.ui.tab==='font';
   var inner=k?'<div class="st-empty">Узлов: '+k+'</div>':
-    (ST.tokui?ST.tokui.sample():'<div class="st-empty">Пустой экран<br>Узлы появятся в Шаге 4</div>');
+    fontTab?ST.fontui.specimen():(ST.tokui?ST.tokui.sample():'<div class="st-empty">Пустой экран<br>Узлы появятся в Шаге 4</div>');
   var frames=ts.map(function(th,i){
-    var left=24+i*(w*z+GAP),tv=ST.tok?ST.tok.styleAttr(ST.p,th):'';
+    var left=24+i*(w*z+GAP),tv=(ST.tok?ST.tok.styleAttr(ST.p,th):'')+(ST.fonts?ST.fonts.styleAttr(ST.p):'');
     return '<div class="st-flabel" style="left:'+left+'px;max-width:'+Math.max(60,w*z)+'px">'+ST.esc(sc.name)+' · '+w+'×'+h+(ST.tok?' · '+(th==='light'?'☀ светлая':'🌙 тёмная'):'')+'</div>'+
       '<div class="st-frame" data-th="'+th+'" style="left:'+left+'px;width:'+w+'px;height:'+h+'px;transform:scale('+z+');'+ST.esc(tv)+'">'+inner+'</div>';
   }).join('');

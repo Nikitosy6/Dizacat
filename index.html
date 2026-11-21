@@ -4,7 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Catworking Studio</title>
+<link rel="stylesheet" href="fonts/fonts.css">
 <link rel="stylesheet" href="studio.css">
+<link rel="stylesheet" href="studio-fonts.css">
 </head>
 <body>
 <div class="st-app" id="st-app">
@@ -40,10 +42,12 @@
 </div>
 <div class="st-toast" id="st-toast" role="status"></div>
 <script src="st-tokens.js"></script>
+<script src="st-fonts.js"></script>
 <script src="st-store.js"></script>
 <script src="st-io.js"></script>
 <script src="st-canvas.js"></script>
 <script src="st-tokui.js"></script>
+<script src="st-fontui.js"></script>
 <script src="st-ui.js"></script>
 <script>try{ST.ui.boot();}catch(e){document.body.insertAdjacentHTML('afterbegin','<p style="padding:16px;font:16px sans-serif">Студия не запустилась: '+String(e.message).replace(/</g,'&lt;')+'</p>');}</script>
 </body>

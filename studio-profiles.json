@@ -1,0 +1,1213 @@
+{
+ "format": 1,
+ "contract": "STUDIO_CONTRACT.md версия 21.11.2026 (ред. 2, часть 3)",
+ "generated": "2026-11-21",
+ "legend": {
+  "src": {
+   "app": "значение взято из кода приложения",
+   "mockup": "из макета",
+   "proposal": "предложение, подтвердить",
+   "unknown": "значение не известно, нужен файл из поля need"
+  },
+  "null": "значение неизвестно: студия рисует серую заглушку #888 с пометкой, экспорт значение не выдаёт, а ссылается на var(--имя). С 21.11.2026 (часть 3) в встроенных профилях таких значений нет.",
+  "new_in_app": "переменной нет ни в одном присланном CSS приложения; в режиме module объявляется в корне модуля, в режиме app идёт в «что добавить»"
+ },
+ "profiles": [
+  {
+   "id": "catworking-now",
+   "name": "Catworking сейчас",
+   "scope": "app",
+   "base": null,
+   "locked": true,
+   "note": "Значения приложения (styles.css, проверено 21.11.2026). Только чтение. Все токены известны. vio = --acc (запасное значение). t0–t2, trk, tile0, tile1 остаются предложением (ряд макетов): в приложении такого ряда нет, баннер задаёт sj.css (не проверен).",
+   "tokens": [
+    {
+     "name": "bg",
+     "app": "--bg",
+     "role": "фон экрана",
+     "light": "#fff4e6",
+     "dark": "#1d1530",
+     "src": "app"
+    },
+    {
+     "name": "card",
+     "app": "--panel",
+     "role": "карточка, панель, шторка",
+     "light": "#fffaf2",
+     "dark": "#2b2140",
+     "src": "app"
+    },
+    {
+     "name": "tx",
+     "app": "--fg",
+     "role": "основной текст",
+     "light": "#3a2a1a",
+     "dark": "#f6efe6",
+     "src": "app"
+    },
+    {
+     "name": "mu",
+     "app": "--mut",
+     "role": "второстепенный текст",
+     "light": "#8a7358",
+     "dark": "#b3a6c9",
+     "src": "app"
+    },
+    {
+     "name": "ln",
+     "app": "--line",
+     "role": "рамки, бортик, разделители",
+     "light": "#e5cfae",
+     "dark": "#4a3b6b",
+     "src": "app"
+    },
+    {
+     "name": "ac",
+     "app": "--acc",
+     "role": "акцент",
+     "light": "#e8891c",
+     "dark": "#ffb454",
+     "src": "app"
+    },
+    {
+     "name": "act",
+     "app": "--accfg",
+     "role": "текст на акценте",
+     "light": "#ffffff",
+     "dark": "#3a2300",
+     "src": "app"
+    },
+    {
+     "name": "ton",
+     "app": "--p2",
+     "role": "вторичная поверхность (кнопка .btn, активная вкладка)",
+     "light": "#fbead2",
+     "dark": "#382c52",
+     "src": "app"
+    },
+    {
+     "name": "ed",
+     "app": "--accd",
+     "role": "нижний бортик и рамка акцентной кнопки",
+     "light": "#b3640a",
+     "dark": "#c97d12",
+     "src": "app"
+    },
+    {
+     "name": "trk",
+     "app": "--trk",
+     "role": "дорожка прогресса (новая переменная)",
+     "light": "#f3e1c8",
+     "dark": "#3a2a1e",
+     "src": "proposal",
+     "new_in_app": true
+    },
+    {
+     "name": "tile0",
+     "app": "--tile0",
+     "role": "плитка иконки, верх градиента (новая)",
+     "light": "#FFB347",
+     "dark": "#FFB347",
+     "src": "proposal",
+     "new_in_app": true
+    },
+    {
+     "name": "tile1",
+     "app": "--tile1",
+     "role": "плитка иконки, низ градиента (новая)",
+     "light": "#F28A10",
+     "dark": "#F28A10",
+     "src": "proposal",
+     "new_in_app": true
+    },
+    {
+     "name": "t0",
+     "app": "--t0",
+     "role": "бирюзовый ряд баннера «Импорт», тёмный (новая)",
+     "light": "#0F4F4A",
+     "dark": "#083F3B",
+     "src": "proposal",
+     "new_in_app": true
+    },
+    {
+     "name": "t1",
+     "app": "--t1",
+     "role": "бирюзовый ряд, средний (новая)",
+     "light": "#146A64",
+     "dark": "#0E5A55",
+     "src": "proposal",
+     "new_in_app": true
+    },
+    {
+     "name": "t2",
+     "app": "--t2",
+     "role": "бирюзовый ряд, светлый (новая)",
+     "light": "#1C8077",
+     "dark": "#167068",
+     "src": "proposal",
+     "new_in_app": true
+    },
+    {
+     "name": "bg2",
+     "app": "--bg2",
+     "role": "низ градиента фона body",
+     "light": "#ffe9cf",
+     "dark": "#2a1f45",
+     "src": "app",
+     "src_ref": "styles.css:3-5"
+    },
+    {
+     "name": "mint",
+     "app": "--mint",
+     "role": "мятный: вторичный акцент, баннеры, столбики",
+     "light": "#2a9d8f",
+     "dark": "#7ee0c3",
+     "src": "app",
+     "src_ref": "styles.css:3-5"
+    },
+    {
+     "name": "pink",
+     "app": "--pink",
+     "role": "розовый (читает только styles.css:53, градиент .bar i)",
+     "light": "#d9577a",
+     "dark": "#ff8fab",
+     "src": "app",
+     "src_ref": "styles.css:3-5"
+    },
+    {
+     "name": "ok",
+     "app": "--ok",
+     "role": "успех",
+     "light": "#2f9e5f",
+     "dark": "#7ee0a0",
+     "src": "app",
+     "src_ref": "styles.css:3-5"
+    },
+    {
+     "name": "warn",
+     "app": "--warn",
+     "role": "предупреждение",
+     "light": "#b7791f",
+     "dark": "#ffd166",
+     "src": "app",
+     "src_ref": "styles.css:3-5"
+    },
+    {
+     "name": "bad",
+     "app": "--bad",
+     "role": "ошибка",
+     "light": "#d64545",
+     "dark": "#ff6b6b",
+     "src": "app",
+     "src_ref": "styles.css:3-5"
+    },
+    {
+     "name": "vio",
+     "app": "--vio",
+     "role": "фиолетовый баннера курса (sj-course.css:6); в styles.css не задана, действует запасное --acc",
+     "light": "#e8891c",
+     "dark": "#ffb454",
+     "src": "app",
+     "new_in_app": true,
+     "note": "значение = --acc (запасное в var(--vio,var(--acc))); токен новый для приложения",
+     "src_ref": "sj-course.css:6"
+    },
+    {
+     "name": "r",
+     "app": "--r",
+     "role": "радиус крупных блоков (читает только fx.css; styles.css не читает)",
+     "light": "14px",
+     "dark": "14px",
+     "src": "app"
+    },
+    {
+     "name": "sh",
+     "app": "--sh",
+     "role": "тень-бортик (читают fx.css и .face, styles.css:100; .card и .btn берут 0 4px 0 var(--line))",
+     "light": "0 4px 0 rgba(0,0,0,.28)",
+     "dark": "0 4px 0 rgba(0,0,0,.28)",
+     "src": "app"
+    }
+   ],
+   "fonts": {
+    "display": {
+     "family": "ui-monospace, Menlo, Consolas, monospace",
+     "src": "app",
+     "note": "h1 22px, h2 15px, .logo 20px, .big 40px, вес 700 (styles.css:11,33,34,71)"
+    },
+    "body": {
+     "family": "ui-rounded, \"Nunito\", system-ui, -apple-system, \"Segoe UI\", sans-serif",
+     "src": "app",
+     "note": "styles.css:8, body font: 16px/1.5; Roboto в списке нет"
+    },
+    "mono": {
+     "family": "ui-monospace, Menlo, Consolas, monospace",
+     "src": "app",
+     "note": "ui-monospace, Menlo, Consolas, monospace вписан в 27 правил (23 в модулях, 4 в styles.css), контракт §12.5; плюс fx.css:35 monospace"
+    },
+    "pixel": null
+   },
+   "shape": {
+    "r": "10px",
+    "rl": "14px",
+    "bw": "2px",
+    "ledge": "4px",
+    "shadow": "0 4px 0 rgba(0,0,0,.28)",
+    "src": "app",
+    "note": ".card: радиус 14, рамка 2, бортик 0 4px 0 var(--line) (styles.css:35); .btn: радиус 10, рамка 2, бортик 0 4px 0 var(--line) (:44); .chip: радиус 999, рамка 2 (:32). --r и --sh объявлены в :root, но .card .btn .chip их не читают (контракт §12.3)."
+   },
+   "icons": "emoji+pixel-svg"
+  },
+  {
+   "id": "mockups-nunito",
+   "name": "Макеты Nunito",
+   "scope": "module",
+   "base": null,
+   "locked": true,
+   "note": "Шесть макетов «Предметы_редизайн». Токены без макетной пары (bg2, mint, pink, ok, warn, bad, vio, sh) предложение.",
+   "tokens": [
+    {
+     "name": "bg",
+     "app": "--bg",
+     "role": "фон экрана",
+     "light": "#FFF1DE",
+     "dark": "#1C1410",
+     "src": "mockup"
+    },
+    {
+     "name": "card",
+     "app": "--panel",
+     "role": "карточка, панель, шторка",
+     "light": "#FFFAF2",
+     "dark": "#2A1E16",
+     "src": "mockup"
+    },
+    {
+     "name": "tx",
+     "app": "--fg",
+     "role": "основной текст",
+     "light": "#3B2616",
+     "dark": "#FBEBD6",
+     "src": "mockup"
+    },
+    {
+     "name": "mu",
+     "app": "--mut",
+     "role": "второстепенный текст",
+     "light": "#86654C",
+     "dark": "#C4A98E",
+     "src": "mockup"
+    },
+    {
+     "name": "ln",
+     "app": "--line",
+     "role": "рамки, бортик, разделители",
+     "light": "#F0DCC2",
+     "dark": "#3D2C20",
+     "src": "mockup"
+    },
+    {
+     "name": "ac",
+     "app": "--acc",
+     "role": "акцент",
+     "light": "#F59A23",
+     "dark": "#F5A02E",
+     "src": "mockup"
+    },
+    {
+     "name": "act",
+     "app": "--accfg",
+     "role": "текст на акценте",
+     "light": "#3B1F08",
+     "dark": "#2B1606",
+     "src": "mockup"
+    },
+    {
+     "name": "ton",
+     "app": "--p2",
+     "role": "вторичная поверхность (кнопка .btn, активная вкладка)",
+     "light": "#FDE3BF",
+     "dark": "#46321F",
+     "src": "mockup"
+    },
+    {
+     "name": "ed",
+     "app": "--accd",
+     "role": "нижний бортик и рамка акцентной кнопки",
+     "light": "#D9812A",
+     "dark": "#B86F1A",
+     "src": "mockup"
+    },
+    {
+     "name": "trk",
+     "app": "--trk",
+     "role": "дорожка прогресса (новая переменная)",
+     "light": "#F3E1C8",
+     "dark": "#3A2A1E",
+     "src": "mockup",
+     "new_in_app": true
+    },
+    {
+     "name": "tile0",
+     "app": "--tile0",
+     "role": "плитка иконки, верх градиента (новая)",
+     "light": "#FFB347",
+     "dark": "#FFB347",
+     "src": "mockup",
+     "new_in_app": true
+    },
+    {
+     "name": "tile1",
+     "app": "--tile1",
+     "role": "плитка иконки, низ градиента (новая)",
+     "light": "#F28A10",
+     "dark": "#F28A10",
+     "src": "mockup",
+     "new_in_app": true
+    },
+    {
+     "name": "t0",
+     "app": "--t0",
+     "role": "бирюзовый ряд баннера «Импорт», тёмный (новая)",
+     "light": "#0F4F4A",
+     "dark": "#083F3B",
+     "src": "mockup",
+     "new_in_app": true
+    },
+    {
+     "name": "t1",
+     "app": "--t1",
+     "role": "бирюзовый ряд, средний (новая)",
+     "light": "#146A64",
+     "dark": "#0E5A55",
+     "src": "mockup",
+     "new_in_app": true
+    },
+    {
+     "name": "t2",
+     "app": "--t2",
+     "role": "бирюзовый ряд, светлый (новая)",
+     "light": "#1C8077",
+     "dark": "#167068",
+     "src": "mockup",
+     "new_in_app": true
+    },
+    {
+     "name": "bg2",
+     "app": "--bg2",
+     "role": "низ градиента фона body",
+     "light": "#FBE6C8",
+     "dark": "#150F0B",
+     "src": "proposal"
+    },
+    {
+     "name": "mint",
+     "app": "--mint",
+     "role": "мятный: вторичный акцент, баннеры, столбики",
+     "light": "#1C8077",
+     "dark": "#3FC9B5",
+     "src": "proposal"
+    },
+    {
+     "name": "pink",
+     "app": "--pink",
+     "role": "розовый",
+     "light": "#E0577F",
+     "dark": "#F58AAE",
+     "src": "proposal"
+    },
+    {
+     "name": "ok",
+     "app": "--ok",
+     "role": "успех",
+     "light": "#2E9E5B",
+     "dark": "#4CC27F",
+     "src": "proposal"
+    },
+    {
+     "name": "warn",
+     "app": "--warn",
+     "role": "предупреждение",
+     "light": "#B87800",
+     "dark": "#FFC247",
+     "src": "proposal"
+    },
+    {
+     "name": "bad",
+     "app": "--bad",
+     "role": "ошибка",
+     "light": "#D64545",
+     "dark": "#F2706B",
+     "src": "proposal"
+    },
+    {
+     "name": "vio",
+     "app": "--vio",
+     "role": "фиолетовый баннера курса (sj-course.css:6; в приложении возможно не задан)",
+     "light": "#7A55D8",
+     "dark": "#B79BFF",
+     "src": "proposal",
+     "new_in_app": true
+    },
+    {
+     "name": "r",
+     "app": "--r",
+     "role": "радиус крупных блоков (читает только fx.css)",
+     "light": "14px",
+     "dark": "14px",
+     "src": "mockup"
+    },
+    {
+     "name": "sh",
+     "app": "--sh",
+     "role": "тень-бортик (читает только fx.css)",
+     "light": "0 3px 0 rgba(59,38,22,.22)",
+     "dark": "0 3px 0 rgba(59,38,22,.22)",
+     "src": "proposal"
+    }
+   ],
+   "fonts": {
+    "display": {
+     "family": "\"Nunito\", ui-rounded, \"Nunito\", system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif",
+     "weight": 800,
+     "file": "Nunito 500/700/800, 5 поднаборов, OFL",
+     "src": "mockup"
+    },
+    "body": {
+     "family": "\"Nunito\", ui-rounded, \"Nunito\", system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif",
+     "weight": 500,
+     "src": "mockup"
+    },
+    "mono": {
+     "family": "\"Nunito\", ui-rounded, \"Nunito\", system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif",
+     "weight": 800,
+     "features": "tabular-nums",
+     "src": "proposal"
+    },
+    "pixel": null
+   },
+   "shape": {
+    "r": "14px",
+    "rl": "22px",
+    "bw": "1.5px",
+    "ledge": "3px",
+    "shadow": "0 3px 0 rgba(59,38,22,.22)",
+    "src": "mockup",
+    "note": "радиусы макета 14–26, бортик кнопки 3, карточка 22 и рамка 1.5"
+   },
+   "icons": "line-svg"
+  },
+  {
+   "id": "clean-slate",
+   "name": "Чистый лист",
+   "scope": "module",
+   "base": null,
+   "locked": true,
+   "note": "Нейтральная светлая и тёмная пара для старта с нуля. Всё предложение.",
+   "tokens": [
+    {
+     "name": "bg",
+     "app": "--bg",
+     "role": "фон экрана",
+     "light": "#F5F5F7",
+     "dark": "#1C1C1E",
+     "src": "proposal"
+    },
+    {
+     "name": "card",
+     "app": "--panel",
+     "role": "карточка, панель, шторка",
+     "light": "#FFFFFF",
+     "dark": "#2C2C2E",
+     "src": "proposal"
+    },
+    {
+     "name": "tx",
+     "app": "--fg",
+     "role": "основной текст",
+     "light": "#1D1D1F",
+     "dark": "#F5F5F7",
+     "src": "proposal"
+    },
+    {
+     "name": "mu",
+     "app": "--mut",
+     "role": "второстепенный текст",
+     "light": "#5F5F66",
+     "dark": "#A1A1A6",
+     "src": "proposal"
+    },
+    {
+     "name": "ln",
+     "app": "--line",
+     "role": "рамки, бортик, разделители",
+     "light": "#D2D2D7",
+     "dark": "#3A3A3C",
+     "src": "proposal"
+    },
+    {
+     "name": "ac",
+     "app": "--acc",
+     "role": "акцент",
+     "light": "#2F6FED",
+     "dark": "#5B9BFF",
+     "src": "proposal"
+    },
+    {
+     "name": "act",
+     "app": "--accfg",
+     "role": "текст на акценте",
+     "light": "#FFFFFF",
+     "dark": "#06142B",
+     "src": "proposal"
+    },
+    {
+     "name": "ton",
+     "app": "--p2",
+     "role": "вторичная поверхность (кнопка .btn, активная вкладка)",
+     "light": "#E8E8ED",
+     "dark": "#3A3A3C",
+     "src": "proposal"
+    },
+    {
+     "name": "ed",
+     "app": "--accd",
+     "role": "нижний бортик и рамка акцентной кнопки",
+     "light": "#1F4FB5",
+     "dark": "#3C74D6",
+     "src": "proposal"
+    },
+    {
+     "name": "trk",
+     "app": "--trk",
+     "role": "дорожка прогресса (новая переменная)",
+     "light": "#E1E1E6",
+     "dark": "#3A3A3C",
+     "src": "proposal",
+     "new_in_app": true
+    },
+    {
+     "name": "tile0",
+     "app": "--tile0",
+     "role": "плитка иконки, верх градиента (новая)",
+     "light": "#6FA0FF",
+     "dark": "#6FA0FF",
+     "src": "proposal",
+     "new_in_app": true
+    },
+    {
+     "name": "tile1",
+     "app": "--tile1",
+     "role": "плитка иконки, низ градиента (новая)",
+     "light": "#2F6FED",
+     "dark": "#2F6FED",
+     "src": "proposal",
+     "new_in_app": true
+    },
+    {
+     "name": "t0",
+     "app": "--t0",
+     "role": "бирюзовый ряд баннера «Импорт», тёмный (новая)",
+     "light": "#0B4A5A",
+     "dark": "#073645",
+     "src": "proposal",
+     "new_in_app": true
+    },
+    {
+     "name": "t1",
+     "app": "--t1",
+     "role": "бирюзовый ряд, средний (новая)",
+     "light": "#0F6578",
+     "dark": "#0C5063",
+     "src": "proposal",
+     "new_in_app": true
+    },
+    {
+     "name": "t2",
+     "app": "--t2",
+     "role": "бирюзовый ряд, светлый (новая)",
+     "light": "#1783A0",
+     "dark": "#13708A",
+     "src": "proposal",
+     "new_in_app": true
+    },
+    {
+     "name": "bg2",
+     "app": "--bg2",
+     "role": "низ градиента фона body",
+     "light": "#ECECF0",
+     "dark": "#141416",
+     "src": "proposal"
+    },
+    {
+     "name": "mint",
+     "app": "--mint",
+     "role": "мятный: вторичный акцент, баннеры, столбики",
+     "light": "#12805F",
+     "dark": "#4FCDA4",
+     "src": "proposal"
+    },
+    {
+     "name": "pink",
+     "app": "--pink",
+     "role": "розовый",
+     "light": "#C93A74",
+     "dark": "#F07CA6",
+     "src": "proposal"
+    },
+    {
+     "name": "ok",
+     "app": "--ok",
+     "role": "успех",
+     "light": "#1E8E4E",
+     "dark": "#4CC27F",
+     "src": "proposal"
+    },
+    {
+     "name": "warn",
+     "app": "--warn",
+     "role": "предупреждение",
+     "light": "#9A6400",
+     "dark": "#FFC247",
+     "src": "proposal"
+    },
+    {
+     "name": "bad",
+     "app": "--bad",
+     "role": "ошибка",
+     "light": "#C9302C",
+     "dark": "#F2706B",
+     "src": "proposal"
+    },
+    {
+     "name": "vio",
+     "app": "--vio",
+     "role": "фиолетовый баннера курса (sj-course.css:6; в приложении возможно не задан)",
+     "light": "#6A48D0",
+     "dark": "#B39DFF",
+     "src": "proposal",
+     "new_in_app": true
+    },
+    {
+     "name": "r",
+     "app": "--r",
+     "role": "радиус крупных блоков (читает только fx.css)",
+     "light": "12px",
+     "dark": "12px",
+     "src": "proposal"
+    },
+    {
+     "name": "sh",
+     "app": "--sh",
+     "role": "тень-бортик (читает только fx.css)",
+     "light": "0 2px 0 rgba(0,0,0,.12)",
+     "dark": "0 2px 0 rgba(0,0,0,.12)",
+     "src": "proposal"
+    }
+   ],
+   "fonts": {
+    "display": {
+     "family": "ui-rounded, \"Nunito\", system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif",
+     "weight": 700,
+     "src": "proposal"
+    },
+    "body": {
+     "family": "ui-rounded, \"Nunito\", system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif",
+     "weight": 500,
+     "src": "proposal"
+    },
+    "mono": {
+     "family": "ui-monospace, Menlo, Consolas, monospace",
+     "src": "proposal"
+    },
+    "pixel": null
+   },
+   "shape": {
+    "r": "10px",
+    "rl": "12px",
+    "bw": "1px",
+    "ledge": "0px",
+    "shadow": "0 2px 0 rgba(0,0,0,.12)",
+    "src": "proposal"
+   },
+   "icons": "line-svg"
+  },
+  {
+   "id": "pixel",
+   "name": "Пиксель",
+   "scope": "module",
+   "base": null,
+   "locked": true,
+   "note": "Q12 (21.11.2026). Квадратные углы, жёсткая тень без размытия, бумажно-тёплая светлая и ночная тёмная. Шрифт пиксельный требует файла и проверки кириллицы (Шаг 3, P6.6).",
+   "tokens": [
+    {
+     "name": "bg",
+     "app": "--bg",
+     "role": "фон экрана",
+     "light": "#F4EFD9",
+     "dark": "#14121F",
+     "src": "proposal"
+    },
+    {
+     "name": "card",
+     "app": "--panel",
+     "role": "карточка, панель, шторка",
+     "light": "#FFFBEA",
+     "dark": "#211E33",
+     "src": "proposal"
+    },
+    {
+     "name": "tx",
+     "app": "--fg",
+     "role": "основной текст",
+     "light": "#1F1B2E",
+     "dark": "#F2EFFF",
+     "src": "proposal"
+    },
+    {
+     "name": "mu",
+     "app": "--mut",
+     "role": "второстепенный текст",
+     "light": "#5E5878",
+     "dark": "#B2ADD0",
+     "src": "proposal"
+    },
+    {
+     "name": "ln",
+     "app": "--line",
+     "role": "рамки, бортик, разделители",
+     "light": "#2A2540",
+     "dark": "#4B4578",
+     "src": "proposal"
+    },
+    {
+     "name": "ac",
+     "app": "--acc",
+     "role": "акцент",
+     "light": "#E6A100",
+     "dark": "#FFCC33",
+     "src": "proposal"
+    },
+    {
+     "name": "act",
+     "app": "--accfg",
+     "role": "текст на акценте",
+     "light": "#1A1400",
+     "dark": "#1A1400",
+     "src": "proposal"
+    },
+    {
+     "name": "ton",
+     "app": "--p2",
+     "role": "вторичная поверхность (кнопка .btn, активная вкладка)",
+     "light": "#EADFB8",
+     "dark": "#2D2947",
+     "src": "proposal"
+    },
+    {
+     "name": "ed",
+     "app": "--accd",
+     "role": "нижний бортик и рамка акцентной кнопки",
+     "light": "#A87700",
+     "dark": "#B38F00",
+     "src": "proposal"
+    },
+    {
+     "name": "trk",
+     "app": "--trk",
+     "role": "дорожка прогресса (новая переменная)",
+     "light": "#E3D9B2",
+     "dark": "#0D0B16",
+     "src": "proposal",
+     "new_in_app": true
+    },
+    {
+     "name": "tile0",
+     "app": "--tile0",
+     "role": "плитка иконки, верх градиента (новая)",
+     "light": "#FF6B9D",
+     "dark": "#FF6B9D",
+     "src": "proposal",
+     "new_in_app": true
+    },
+    {
+     "name": "tile1",
+     "app": "--tile1",
+     "role": "плитка иконки, низ градиента (новая)",
+     "light": "#C9407A",
+     "dark": "#C9407A",
+     "src": "proposal",
+     "new_in_app": true
+    },
+    {
+     "name": "t0",
+     "app": "--t0",
+     "role": "бирюзовый ряд баннера «Импорт», тёмный (новая)",
+     "light": "#0B4A4F",
+     "dark": "#0B4A4F",
+     "src": "proposal",
+     "new_in_app": true
+    },
+    {
+     "name": "t1",
+     "app": "--t1",
+     "role": "бирюзовый ряд, средний (новая)",
+     "light": "#12747A",
+     "dark": "#12747A",
+     "src": "proposal",
+     "new_in_app": true
+    },
+    {
+     "name": "t2",
+     "app": "--t2",
+     "role": "бирюзовый ряд, светлый (новая)",
+     "light": "#1BA39F",
+     "dark": "#1BA39F",
+     "src": "proposal",
+     "new_in_app": true
+    },
+    {
+     "name": "bg2",
+     "app": "--bg2",
+     "role": "низ градиента фона body",
+     "light": "#E9E2C3",
+     "dark": "#0D0B16",
+     "src": "proposal"
+    },
+    {
+     "name": "mint",
+     "app": "--mint",
+     "role": "мятный: вторичный акцент, баннеры, столбики",
+     "light": "#0F8F7C",
+     "dark": "#46E0C2",
+     "src": "proposal"
+    },
+    {
+     "name": "pink",
+     "app": "--pink",
+     "role": "розовый",
+     "light": "#D13C7B",
+     "dark": "#FF7DB0",
+     "src": "proposal"
+    },
+    {
+     "name": "ok",
+     "app": "--ok",
+     "role": "успех",
+     "light": "#2B9A44",
+     "dark": "#5BE07A",
+     "src": "proposal"
+    },
+    {
+     "name": "warn",
+     "app": "--warn",
+     "role": "предупреждение",
+     "light": "#A56B00",
+     "dark": "#FFD23F",
+     "src": "proposal"
+    },
+    {
+     "name": "bad",
+     "app": "--bad",
+     "role": "ошибка",
+     "light": "#C9322D",
+     "dark": "#FF5E57",
+     "src": "proposal"
+    },
+    {
+     "name": "vio",
+     "app": "--vio",
+     "role": "фиолетовый баннера курса (sj-course.css:6; в приложении возможно не задан)",
+     "light": "#6B45D6",
+     "dark": "#B79BFF",
+     "src": "proposal",
+     "new_in_app": true
+    },
+    {
+     "name": "r",
+     "app": "--r",
+     "role": "радиус крупных блоков (читает только fx.css)",
+     "light": "0px",
+     "dark": "0px",
+     "src": "proposal"
+    },
+    {
+     "name": "sh",
+     "app": "--sh",
+     "role": "тень-бортик (читает только fx.css)",
+     "light": "0 4px 0 rgba(0,0,0,.45)",
+     "dark": "0 4px 0 rgba(0,0,0,.45)",
+     "src": "proposal"
+    }
+   ],
+   "fonts": {
+    "display": {
+     "family": "\"Press Start 2P\", ui-monospace, Menlo, Consolas, monospace",
+     "src": "proposal",
+     "file": null,
+     "license": "OFL",
+     "status": "файл не добавлен; до Шага 3 работает запасной моноширинный"
+    },
+    "body": {
+     "family": "ui-rounded, \"Nunito\", system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif",
+     "weight": 600,
+     "src": "proposal"
+    },
+    "mono": {
+     "family": "ui-monospace, Menlo, Consolas, monospace",
+     "src": "proposal"
+    },
+    "pixel": {
+     "family": "\"Press Start 2P\", ui-monospace, Menlo, Consolas, monospace",
+     "src": "proposal",
+     "file": null,
+     "status": "как display"
+    }
+   },
+   "shape": {
+    "r": "0px",
+    "rl": "0px",
+    "bw": "3px",
+    "ledge": "4px",
+    "shadow": "0 4px 0 rgba(0,0,0,.45)",
+    "src": "proposal"
+   },
+   "icons": "pixel-svg"
+  },
+  {
+   "id": "contrast",
+   "name": "Контраст",
+   "scope": "module",
+   "base": null,
+   "locked": true,
+   "note": "Q12 (21.11.2026). Высокий контраст: чёрное и белое, жёлтый акцент в тёмной, синий в светлой, без тени, рамка 3 px. Пары tx/bg, tx/card, mu/bg, mu/card, act/ac, tx/ton проверены скриптом 21.11.2026: минимум 9,0:1.",
+   "tokens": [
+    {
+     "name": "bg",
+     "app": "--bg",
+     "role": "фон экрана",
+     "light": "#FFFFFF",
+     "dark": "#000000",
+     "src": "proposal"
+    },
+    {
+     "name": "card",
+     "app": "--panel",
+     "role": "карточка, панель, шторка",
+     "light": "#FFFFFF",
+     "dark": "#0A0A0A",
+     "src": "proposal"
+    },
+    {
+     "name": "tx",
+     "app": "--fg",
+     "role": "основной текст",
+     "light": "#000000",
+     "dark": "#FFFFFF",
+     "src": "proposal"
+    },
+    {
+     "name": "mu",
+     "app": "--mut",
+     "role": "второстепенный текст",
+     "light": "#333333",
+     "dark": "#D4D4D4",
+     "src": "proposal"
+    },
+    {
+     "name": "ln",
+     "app": "--line",
+     "role": "рамки, бортик, разделители",
+     "light": "#000000",
+     "dark": "#FFFFFF",
+     "src": "proposal"
+    },
+    {
+     "name": "ac",
+     "app": "--acc",
+     "role": "акцент",
+     "light": "#0033CC",
+     "dark": "#FFD400",
+     "src": "proposal"
+    },
+    {
+     "name": "act",
+     "app": "--accfg",
+     "role": "текст на акценте",
+     "light": "#FFFFFF",
+     "dark": "#000000",
+     "src": "proposal"
+    },
+    {
+     "name": "ton",
+     "app": "--p2",
+     "role": "вторичная поверхность (кнопка .btn, активная вкладка)",
+     "light": "#E6E6E6",
+     "dark": "#1A1A1A",
+     "src": "proposal"
+    },
+    {
+     "name": "ed",
+     "app": "--accd",
+     "role": "нижний бортик и рамка акцентной кнопки",
+     "light": "#001A66",
+     "dark": "#B39500",
+     "src": "proposal"
+    },
+    {
+     "name": "trk",
+     "app": "--trk",
+     "role": "дорожка прогресса (новая переменная)",
+     "light": "#D9D9D9",
+     "dark": "#262626",
+     "src": "proposal",
+     "new_in_app": true
+    },
+    {
+     "name": "tile0",
+     "app": "--tile0",
+     "role": "плитка иконки, верх градиента (новая)",
+     "light": "#0033CC",
+     "dark": "#FFD400",
+     "src": "proposal",
+     "new_in_app": true
+    },
+    {
+     "name": "tile1",
+     "app": "--tile1",
+     "role": "плитка иконки, низ градиента (новая)",
+     "light": "#001A66",
+     "dark": "#B39500",
+     "src": "proposal",
+     "new_in_app": true
+    },
+    {
+     "name": "t0",
+     "app": "--t0",
+     "role": "бирюзовый ряд баннера «Импорт», тёмный (новая)",
+     "light": "#003B36",
+     "dark": "#00403B",
+     "src": "proposal",
+     "new_in_app": true
+    },
+    {
+     "name": "t1",
+     "app": "--t1",
+     "role": "бирюзовый ряд, средний (новая)",
+     "light": "#00574F",
+     "dark": "#006B62",
+     "src": "proposal",
+     "new_in_app": true
+    },
+    {
+     "name": "t2",
+     "app": "--t2",
+     "role": "бирюзовый ряд, светлый (новая)",
+     "light": "#007A6E",
+     "dark": "#00998B",
+     "src": "proposal",
+     "new_in_app": true
+    },
+    {
+     "name": "bg2",
+     "app": "--bg2",
+     "role": "низ градиента фона body",
+     "light": "#FFFFFF",
+     "dark": "#000000",
+     "src": "proposal"
+    },
+    {
+     "name": "mint",
+     "app": "--mint",
+     "role": "мятный: вторичный акцент, баннеры, столбики",
+     "light": "#006B5E",
+     "dark": "#00E5C0",
+     "src": "proposal"
+    },
+    {
+     "name": "pink",
+     "app": "--pink",
+     "role": "розовый",
+     "light": "#B0005A",
+     "dark": "#FF6FB5",
+     "src": "proposal"
+    },
+    {
+     "name": "ok",
+     "app": "--ok",
+     "role": "успех",
+     "light": "#006B2B",
+     "dark": "#3DFF7F",
+     "src": "proposal"
+    },
+    {
+     "name": "warn",
+     "app": "--warn",
+     "role": "предупреждение",
+     "light": "#7A4A00",
+     "dark": "#FFD400",
+     "src": "proposal"
+    },
+    {
+     "name": "bad",
+     "app": "--bad",
+     "role": "ошибка",
+     "light": "#B00000",
+     "dark": "#FF5C5C",
+     "src": "proposal"
+    },
+    {
+     "name": "vio",
+     "app": "--vio",
+     "role": "фиолетовый баннера курса (sj-course.css:6; в приложении возможно не задан)",
+     "light": "#4B1FBF",
+     "dark": "#C4B0FF",
+     "src": "proposal",
+     "new_in_app": true
+    },
+    {
+     "name": "r",
+     "app": "--r",
+     "role": "радиус крупных блоков (читает только fx.css)",
+     "light": "8px",
+     "dark": "8px",
+     "src": "proposal"
+    },
+    {
+     "name": "sh",
+     "app": "--sh",
+     "role": "тень-бортик (читает только fx.css)",
+     "light": "none",
+     "dark": "none",
+     "src": "proposal"
+    }
+   ],
+   "fonts": {
+    "display": {
+     "family": "ui-rounded, \"Nunito\", system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif",
+     "weight": 800,
+     "src": "proposal"
+    },
+    "body": {
+     "family": "ui-rounded, \"Nunito\", system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif",
+     "weight": 600,
+     "src": "proposal"
+    },
+    "mono": {
+     "family": "ui-monospace, Menlo, Consolas, monospace",
+     "src": "proposal"
+    },
+    "pixel": null
+   },
+   "shape": {
+    "r": "8px",
+    "rl": "12px",
+    "bw": "3px",
+    "ledge": "0px",
+    "shadow": "none",
+    "src": "proposal"
+   },
+   "icons": "line-svg"
+  }
+ ]
+}

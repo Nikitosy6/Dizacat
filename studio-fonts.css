@@ -1,0 +1,14 @@
+/* Catworking Studio: стили вкладки «Шрифты» (Шаг 3). Префикс st- */
+.st-tabs{flex-wrap:wrap}
+.st-tabs .st-b{flex:1 0 calc(50% - 4px)}
+.st-fam{max-width:55%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--st-mut);font-size:13px}
+.st-off{opacity:.6}
+.st-pv{position:relative;margin:0 0 8px;padding:12px;border-radius:12px;border:1px solid var(--st-line);overflow:hidden;overflow-wrap:anywhere}
+.st-pvl{position:absolute;right:8px;top:4px;font-size:12px;opacity:.7}
+.st-ul{margin:0 0 6px;padding-left:18px;font-size:13px}
+.st-wl{font-size:17px;line-height:1.5;overflow-wrap:anywhere}
+.st-wl .st-mut{display:inline-block;min-width:36px;font:12px system-ui,sans-serif}
+.st-chk{display:flex;align-items:center;gap:10px;min-height:44px}
+.st-chk input{width:24px;height:24px;flex:none}
+.st-tk{padding:0 10px;gap:6px}
+.st-fam{flex:none;max-width:46%}

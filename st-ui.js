@@ -82,17 +82,18 @@ ui.render=function(){
   $('#st-pname').textContent=ST.title()+' ▾';
   $('#st-undo').disabled=!ST.undoS.length;$('#st-redo').disabled=!ST.redoS.length;
   $('#st-stat').textContent=ST.dirty?'сохраняется…':'сохранено';
-  var bw=ST.tokui?ST.tokui.badge():0;
-  $('#st-tabs').innerHTML=[['layers','Слои'],['comp','Компоненты'],['tok','Токены']].map(function(x){
-    return '<button class="st-b'+(ui.tab===x[0]?' on':'')+'" data-st="tab:'+x[0]+'">'+x[1]+(x[0]==='tok'&&bw?' <span class="st-warn" aria-label="Предупреждений: '+bw+'">⚠'+bw+'</span>':'')+'</button>';}).join('');
+  var bw=ST.tokui?ST.tokui.badge():0,fw=ST.fontui?ST.fontui.badge():0;
+  $('#st-tabs').innerHTML=[['layers','Слои'],['comp','Компоненты'],['tok','Токены'],['font','Шрифты']].map(function(x){
+    return '<button class="st-b'+(ui.tab===x[0]?' on':'')+'" data-st="tab:'+x[0]+'">'+x[1]+(x[0]==='tok'&&bw?' <span class="st-warn" aria-label="Предупреждений: '+bw+'">⚠'+bw+'</span>':'')+(x[0]==='font'&&fw?' <span class="st-warn" aria-label="Предупреждений: '+fw+'">⚠'+fw+'</span>':'')+'</button>';}).join('');
   var L=$('#st-lbody');
   if(ui.tab==='layers'){
     L.innerHTML=ST.p.screens.map(function(s){
       return '<button class="st-b st-row'+(sc&&s.id===sc.id?' on':'')+'" data-st="scr:'+h(s.id)+'">'+h(s.name)+'</button>';}).join('')+
       '<button class="st-b st-row" data-st="addscr">＋ Экран</button>';
   }else if(ui.tab==='tok'&&ST.tokui)L.innerHTML=ST.tokui.list();
+  else if(ui.tab==='font'&&ST.fontui)L.innerHTML=ST.fontui.list();
   else L.innerHTML='<p class="st-mut">Компоненты появятся в Шаге 5.</p>';
-  $('#st-rbody').innerHTML=(ui.tab==='tok'&&ST.tokui?ST.tokui.inspector()+'<div class="st-lh">Проект</div>':'')+'<label class="st-lb">Название проекта<input class="st-in" data-f="pname" maxlength="80" value="'+h(ST.title())+'"></label>'+
+  $('#st-rbody').innerHTML=(ui.tab==='tok'&&ST.tokui?ST.tokui.inspector()+'<div class="st-lh">Проект</div>':ui.tab==='font'&&ST.fontui?ST.fontui.inspector()+'<div class="st-lh">Проект</div>':'')+'<label class="st-lb">Название проекта<input class="st-in" data-f="pname" maxlength="80" value="'+h(ST.title())+'"></label>'+
     (sc?'<label class="st-lb">Название экрана<input class="st-in" data-f="sname" maxlength="80" value="'+h(sc.name)+'"></label>'+
     '<p class="st-mut">Размер экрана: '+h(sc.w)+'×'+h(sc.h)+'</p>':'')+
     '<p class="st-mut">Шагов в истории: '+ST.undoS.length+' из '+ST.HIST_MAX+'</p>';
@@ -132,7 +133,7 @@ function bind(){
   window.addEventListener('resize',function(){ST.canvas.render();});
 }
 ui.boot=function(){
-  theme();ST.io.watch();bind();if(ST.tokui)ST.tokui.bind();
+  theme();ST.io.watch();bind();if(ST.tokui)ST.tokui.bind();if(ST.fontui)ST.fontui.bind();
   ST.on(function(k,a){
     if(k==='error')ui.error(a);else if(k==='toast')ui.toast(a);else if(k!=='saved')ui.render();else $('#st-stat').textContent='сохранено';});
   ST.io.load().then(function(r){
