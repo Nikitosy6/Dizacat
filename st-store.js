@@ -1,7 +1,7 @@
 /* Catworking Studio: проект, команды, история (отмена/возврат). Только данные, без DOM. */
 (function(){'use strict';
 var ST=window.ST=window.ST||{};
-ST.SCHEMA=3; ST.HIST_MAX=50;
+ST.SCHEMA=4; ST.HIST_MAX=50;
 ST.p=null; ST.cur=null; ST.dirty=false; ST.undoS=[]; ST.redoS=[];
 var n=0,hs=[];
 function isO(x){return !!x&&typeof x==='object'&&!Array.isArray(x);}
@@ -27,6 +27,7 @@ ST.migrate=function(p){
     p.schema=2;
   }
   if(p.schema<3){if(ST.fonts)ST.fonts.seed(p);p.schema=3;}
+  if(p.schema<4){if(ST.nodes)ST.nodes.normalize(p);p.schema=4;} /* 3→4 (Шаг 4): у каждого узла есть layout, style, props, children, name */
   return p;
 };
 ST.validate=function(p){
@@ -42,6 +43,7 @@ ST.validate=function(p){
   if(!Array.isArray(p.screens))return 'нет списка экранов';
   for(var i=0;i<p.screens.length;i++){var s=p.screens[i];
     if(!isO(s)||typeof s.id!=='string'||!isO(s.root)||!Array.isArray(s.root.children))return 'экран №'+(i+1)+' повреждён';}
+  if(ST.nodes){var ne=ST.nodes.validate(p);if(ne)return ne;}
   return '';
 };
 ST.title=function(){return (ST.p&&ST.p.meta&&ST.p.meta.name)||'Без названия';};

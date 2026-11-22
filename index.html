@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="fonts/fonts.css">
 <link rel="stylesheet" href="studio.css">
 <link rel="stylesheet" href="studio-fonts.css">
+<link rel="stylesheet" href="studio-nodes.css">
 </head>
 <body>
 <div class="st-app" id="st-app">
@@ -29,6 +30,8 @@
       <span id="st-zl">100%</span>
       <button class="st-b st-ic" data-st="zin" aria-label="Увеличить">+</button>
       <button class="st-b" data-st="zfit">По экрану</button>
+      <button class="st-b" data-st="grid" id="st-gridb">Сетка: выкл</button>
+      <button class="st-b" data-st="multi" id="st-multib" aria-pressed="false">Несколько</button>
     </div>
   </main>
   <aside class="st-side st-right" id="st-right">
@@ -44,10 +47,15 @@
 <script src="st-tokens.js"></script>
 <script src="st-fonts.js"></script>
 <script src="st-store.js"></script>
+<script src="st-nodes.js"></script>
+<script src="st-nstyle.js"></script>
 <script src="st-io.js"></script>
 <script src="st-canvas.js"></script>
+<script src="st-gest.js"></script>
 <script src="st-tokui.js"></script>
 <script src="st-fontui.js"></script>
+<script src="st-nodeui.js"></script>
+<script src="st-insp.js"></script>
 <script src="st-ui.js"></script>
 <script>try{ST.ui.boot();}catch(e){document.body.insertAdjacentHTML('afterbegin','<p style="padding:16px;font:16px sans-serif">Студия не запустилась: '+String(e.message).replace(/</g,'&lt;')+'</p>');}</script>
 </body>

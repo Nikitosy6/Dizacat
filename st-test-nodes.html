@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="utf-8"><title>Тесты Шагов 2–4</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>body{font:15px/1.5 system-ui,sans-serif;padding:16px;max-width:900px}.ok{color:#1a7f3c}.no{color:#c0392b;font-weight:700}pre{white-space:pre-wrap}</style></head>
+<body><h1>Шаги 2–4: токены, шрифты, узлы</h1><div id="out"></div><p id="sum"></p>
+<div class="st-app" style="display:block;height:auto"><div id="st-canvas" style="position:relative;width:900px;height:500px;overflow:auto"></div><span id="st-zl"></span><div id="st-left"></div><div id="st-right"></div></div>
+<link rel="stylesheet" href="studio.css"><link rel="stylesheet" href="studio-nodes.css">
+<script src="st-tokens.js"></script><script src="st-fonts.js"></script><script src="st-store.js"></script><script src="st-nodes.js"></script><script src="st-nstyle.js"></script><script src="st-io.js"></script><script src="st-canvas.js"></script><script src="st-fontui.js"></script>
+<script>
+ST.io.cfg.db='catworking-studio-test'; /* отдельная база: рабочие данные не трогаем (STUDIO_RULES §5) */
+var tests=[];function T(n,f){tests.push([n,f]);}
+function eq(a,b,m){if(a!==b)throw new Error((m?m+': ':'')+'ожидали '+JSON.stringify(b)+', получили '+JSON.stringify(a));}
+</script>
+<script src="st-test-tokens.js"></script>
+<script src="st-test-fonts.js"></script>
+<script src="st-test-nodes.js"></script>
+<script>
+(function(){var out=document.getElementById('out'),pass=0,fail=0;
+  function line(ok,n,e){out.insertAdjacentHTML('beforeend','<div class="'+(ok?'ok':'no')+'">'+(ok?'✓ ':'✗ ')+ST.esc(n)+(e?'<pre>'+ST.esc(e)+'</pre>':'')+'</div>');}
+  var i=0;(function next(){if(i>=tests.length){document.getElementById('sum').textContent='Прошло: '+pass+', не прошло: '+fail;window.__result={pass:pass,fail:fail};return;}
+    var t=tests[i++],r;try{r=t[1]();}catch(e){fail++;line(false,t[0],e.message);return next();}
+    Promise.resolve(r).then(function(){pass++;line(true,t[0]);next();},function(e){fail++;line(false,t[0],e&&e.message);next();});})();})();
+</script></body></html>

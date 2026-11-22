@@ -7,7 +7,7 @@ function fresh(){ST.set(ST.blank('Т'));}
 function tx(o){return Object.assign({ff:'role:body',fw:700,fs:16,lh:1.2,ls:0,tt:'none',ta:'left',cl:0,c:'@tx',tnum:false},o||{});}
 
 T('новый проект: схема 3, 4 роли, 5 стилей текста, всё проходит проверку',function(){fresh();
-  eq(ST.p.schema,3);eq(ST.validate(ST.p),'');eq(Object.keys(ST.p.fonts).join(),'display,body,mono,pixel');
+  eq(ST.p.schema,ST.SCHEMA);eq(ST.validate(ST.p),'');eq(Object.keys(ST.p.fonts).join(),'display,body,mono,pixel');
   eq(Object.keys(ST.p.text).join(),'title,cardtitle,caption,counter,button');
   Object.keys(ST.p.text).forEach(function(k){eq(F.checkT(ST.p.text[k]),'',k);});
   var t=ST.p.text;eq(t.title.fs+'/'+t.title.fw,'32/800');eq(t.cardtitle.fs+'/'+t.cardtitle.fw,'17/800');
@@ -67,8 +67,8 @@ T('смена профиля шрифтов не трогает узлы: рол
   eq(F.family(ST.p,'role:display'),'Comfortaa');eq(F.family(ST.p,'Rubik'),'Rubik');});
 T('миграция 2→3: добавляет роли и стили, свои значения остаются',function(){
   var a={schema:2,meta:{},tokens:{light:{},dark:{},info:{},grad:{}},components:[],assets:{},screens:[],fonts:{display:'Rubik'}};
-  eq(ST.validate(a),'');var m=ST.migrate(a);eq(m.schema,3);eq(m.fonts.display,'Rubik');eq(m.fonts.body,'Nunito');eq(Object.keys(m.text).length,5);
-  var b={schema:1,meta:{},tokens:{light:{},dark:{}},components:[],assets:{},screens:[]};m=ST.migrate(b);eq(m.schema,3);eq(m.fonts.pixel,'Press Start 2P');
+  eq(ST.validate(a),'');var m=ST.migrate(a);eq(m.schema,ST.SCHEMA);eq(m.fonts.display,'Rubik');eq(m.fonts.body,'Nunito');eq(Object.keys(m.text).length,5);
+  var b={schema:1,meta:{},tokens:{light:{},dark:{}},components:[],assets:{},screens:[]};m=ST.migrate(b);eq(m.schema,ST.SCHEMA);eq(m.fonts.pixel,'Press Start 2P');
   eq(JSON.stringify(ST.migrate(JSON.parse(JSON.stringify(m)))),JSON.stringify(m));});
 T('повреждённые fonts и text не принимаются; проект туда-обратно без потерь',function(){
   var p=ST.blank('Т');p.fonts=[];eq(ST.validate(p)!=='',true);

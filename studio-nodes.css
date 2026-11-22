@@ -1,0 +1,43 @@
+/* Catworking Studio: стили Шага 4 (узлы на холсте, рамка выбора, слои, инспектор). Префикс st- */
+@media(min-width:900px){.st-app{grid-template-columns:280px minmax(0,1fr) 300px}}
+.st-canvas{touch-action:none;-webkit-user-select:none;user-select:none}
+.st-zoom{flex-wrap:wrap;max-width:calc(100% - 20px)}
+.st-zoom .on,.st-adds .on,.st-seg .on{background:var(--st-acc);border-color:var(--st-acc);color:var(--st-onacc)}
+.st-n[data-empty],.st-n.st-e{min-height:24px;min-width:24px}
+.st-n.st-e[data-type=frame]:not(.st-root){outline:1px dashed var(--st-line)}
+.st-n.st-dragging{opacity:.4;pointer-events:none}
+.st-frame.st-g::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:5;
+  background-image:linear-gradient(to right,rgba(128,128,128,.25) 1px,transparent 1px),linear-gradient(to bottom,rgba(128,128,128,.25) 1px,transparent 1px);background-size:var(--g) var(--g)}
+.st-ovs{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none}
+.st-sel{position:absolute;box-sizing:border-box;border:2px solid var(--st-acc);transform-origin:50% 50%}
+.st-sel.st-m{border-style:dashed}
+.st-hd{position:absolute;width:44px;height:44px;margin:-22px 0 0 -22px;pointer-events:auto;touch-action:none;cursor:pointer}
+.st-hd::after{content:"";position:absolute;left:50%;top:50%;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:var(--st-panel);border:2px solid var(--st-acc)}
+.st-hr{left:50%;top:-34px}
+.st-hr::after{background:var(--st-acc)}
+.st-gd{position:absolute;background:#e0457b;pointer-events:none}
+.st-drop{position:absolute;background:var(--st-acc);border-radius:2px;pointer-events:none}
+.st-drop.st-dbox{background:rgba(245,154,35,.18);outline:2px dashed var(--st-acc)}
+/* слои */
+.st-seg{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.st-seg .st-b{flex:1 1 auto;padding:0 8px;font-size:14px}
+.st-lr{display:flex;align-items:center;min-height:44px;border-radius:10px;margin-bottom:2px}
+.st-lr.on{background:var(--st-line)}
+.st-lr.st-hid .st-ln{opacity:.5}
+.st-lx{flex:none;width:44px;min-width:44px;padding:0;border:0;background:none;display:inline-block;text-align:center}
+.st-ln{flex:1;min-width:0;text-align:left;border:0;background:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 4px}
+.st-le{flex:none;border:0;background:none;padding:0}
+.st-lg{flex:none;width:44px;height:44px;display:flex;align-items:center;justify-content:center;color:var(--st-mut);touch-action:none;cursor:grab}
+.st-lm{display:inline-block;width:20px;text-align:center;color:var(--st-mut)}
+.st-lr-b{box-shadow:0 -3px 0 var(--st-acc)}
+.st-lr-a{box-shadow:0 3px 0 var(--st-acc)}
+.st-lr-i{outline:2px dashed var(--st-acc)}
+/* инспектор */
+.st-pr{margin-bottom:12px}
+.st-pl{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:13px;color:var(--st-mut)}
+.st-rs{min-height:44px;font-size:13px;padding:0 10px;border-radius:10px}
+.st-acts{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.st-acts .st-b{flex:1 1 auto;font-size:14px;padding:0 8px}
+.st-rg{flex:1;min-width:0;min-height:44px;margin:0}
+.st-ta{min-height:88px;padding:8px 10px;resize:vertical}
+.st-num{min-width:0}
