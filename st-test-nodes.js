@@ -8,10 +8,10 @@ function err(r,why){if(!r||!r.error)throw new Error('ожидали отказ: 
 function ok(r){if(!r||r.error)throw new Error('отказ: '+(r&&r.error));}
 function node(id){var f=ST.nodes.get(id);return f&&f.n;}
 
-T('схема 4: миграция 3→4 дополняет узлы, повторный запуск ничего не меняет',function(){
+T('схема: миграция 3→4 дополняет узлы, 4→5 только поднимает номер, повторный запуск ничего не меняет',function(){
   var a={schema:3,meta:{},tokens:{light:{},dark:{},info:{},grad:{}},components:[],assets:{},fonts:{},text:{},
     screens:[{id:'s',name:'x',w:390,h:844,root:{id:'r',type:'frame',children:[{id:'a',type:'text'}]}}]};
-  eq(ST.validate(a),'');var m=ST.migrate(a);eq(m.schema,4);eq(ST.SCHEMA,4);
+  eq(ST.validate(a),'');var m=ST.migrate(a);eq(m.schema,5);eq(ST.SCHEMA,5);
   var c=m.screens[0].root.children[0];eq(typeof c.layout,'object');eq(typeof c.style,'object');eq(Array.isArray(c.children),true);eq(typeof c.name,'string');
   eq(JSON.stringify(ST.migrate(JSON.parse(JSON.stringify(m)))),JSON.stringify(m));});
 T('проверка дерева: неизвестный тип, нет id, битый стиль, слишком глубоко',function(){fresh();
@@ -105,4 +105,95 @@ T('холст: рамка выбора есть у выбранного, руч�
   ST.sel=[root().id];ST.canvas.sel();eq(document.querySelectorAll('.st-sel .st-hd').length,0);});
 T('холст: ручка не меньше 44×44 px (по правилам для касания)',function(){fresh();add('shape');ST.canvas.render();
   var hd=document.querySelector('.st-hd'),r=hd.getBoundingClientRect();eq(r.width>=44&&r.height>=44,true,'размер ручки '+r.width+'×'+r.height);});
+/* ---------- Шаг 4, пункты 5–8: состояния, проверки качества, всё через ST.do ---------- */
+function setS(s){ST.nodes.vstate=s;}
+T('состояния: правка style.* при показанном «нажато» уходит в states.pressed.style, обычный вид не меняется',function(){fresh();var id=add('shape');
+  ok(ST.nodes.set([id],'style.op',80));setS('pressed');ok(ST.nodes.set([id],'style.op',50));ok(ST.nodes.set([id],'style.bg','@ac'));
+  eq(node(id).style.op,80);eq(node(id).states.pressed.style.op,50);eq(node(id).states.pressed.style.bg,'@ac');eq(node(id).states.disabled,undefined);
+  eq(ST.nodes.styleOf(node(id),'pressed').op,50);eq(ST.nodes.styleOf(node(id),'normal').op,80);eq(ST.validate(ST.p),'');setS('normal');});
+T('состояния: холст показывает выбранное состояние, у узла без отличий вид обычный',function(){fresh();var a=add('shape'),b=add('shape');
+  ok(ST.nodes.patch([a],[['style.bg','@ac']],'x'));setS('pressed');ok(ST.nodes.set([a],'style.op',40));
+  var ca=ST.nodes.css(node(a),ST.p,{dir:'column'}),cb=ST.nodes.css(node(b),ST.p,{dir:'column'});
+  eq(ca.indexOf('opacity:0.4')>=0,true);eq(cb.indexOf('opacity')<0,true);
+  setS('normal');eq(ST.nodes.css(node(a),ST.p,{dir:'column'}).indexOf('opacity')<0,true);
+  eq(ST.nodes.css(node(a),ST.p,{dir:'column',state:'pressed'}).indexOf('opacity:0.4')>=0,true,'явное состояние в ctx');});
+T('состояния: вложенные значения склеиваются (бортик: цвет обычный, толщина из «нажато»), массив радиусов заменяется',function(){fresh();var id=add('frame');
+  ok(ST.nodes.patch([id],[['style.ledge',{y:3,c:'@ed'}],['style.rc',[1,2,3,4]]],'x'));setS('pressed');
+  ok(ST.nodes.patch([id],[['style.ledge',{y:0}],['style.rc',[9,9,9,9]]],'x'));
+  var e=ST.nodes.styleOf(node(id),'pressed');eq(e.ledge.y,0);eq(e.ledge.c,'@ed');eq(e.rc.join(),'9,9,9,9');
+  eq(ST.nodes.css(node(id),ST.p,{dir:'column'}).indexOf('box-shadow')<0,true);setS('normal');
+  eq(ST.nodes.css(node(id),ST.p,{dir:'column'}).indexOf('0 3px 0 var(--ed)')>=0,true);});
+T('состояния: размер, раскладка и содержимое в состоянии не меняются (отказ с понятным сообщением)',function(){fresh();var id=add('text');setS('disabled');
+  err(ST.nodes.set([id],'layout.w',100),'размер');err(ST.nodes.set([id],'props.text','x'),'текст');
+  err(ST.nodes.patch([id],[['style.op',50],['layout.x',3]],'смесь'),'смесь');eq(node(id).states,undefined,'ничего не записалось');
+  ok(ST.nodes.rename(id,'Новое имя'));eq(node(id).name,'Новое имя');ok(ST.nodes.set([id],'hidden',true));setS('normal');});
+T('состояния: значения проверяются как обычные (предел, цвет), сброс убирает ключ и пустое states',function(){fresh();var id=add('shape');setS('pressed');
+  err(ST.nodes.set([id],'style.op',101),'предел');err(ST.nodes.set([id],'style.bg','красный'),'цвет');
+  ok(ST.nodes.set([id],'style.op',50));ok(ST.nodes.set([id],'style.bd.w',2));eq(node(id).states.pressed.style.bd.w,2);
+  ok(ST.nodes.reset([id],['style.bd.w']));eq(node(id).states.pressed.style.bd,undefined);
+  ok(ST.nodes.reset([id],['style.op']));eq(node(id).states,undefined,'пустое states убрано');
+  ok(ST.nodes.set([id],'style.op',50));ok(ST.nodes.patch([id],[['states.pressed',undefined]],'убрать'));eq(node(id).states,undefined);setS('normal');});
+T('состояния: одна запись в истории, отмена и возврат; номер схемы 5; файл открывается и сохраняется без изменений',function(){fresh();var id=add('shape'),n0=ST.undoS.length;setS('disabled');
+  ok(ST.nodes.patch([id],[['style.op',45],['style.sa',30]],'заготовка'));eq(ST.undoS.length,n0+1);eq(node(id).states.disabled.style.sa,30);
+  var s=JSON.stringify(ST.p),r=ST.io.parse(s);eq(!!r.project,true);eq(JSON.stringify(r.project),s);eq(r.project.schema,5);
+  ST.undo();eq(node(id).states,undefined);ST.redo();eq(node(id).states.disabled.style.op,45);setS('normal');});
+T('состояния: дубль узла берёт состояния с собой, у копии свои id',function(){fresh();var id=add('shape');setS('pressed');ok(ST.nodes.set([id],'style.op',60));setS('normal');
+  ok(ST.nodes.dup([id]));var c=kids()[1];eq(c.states.pressed.style.op,60);c.states.pressed.style.op=1;eq(node(id).states.pressed.style.op,60);});
+T('состояния: повреждённые состояния при открытии файла отклоняются понятным сообщением',function(){fresh();var id=add('shape');
+  function bad(mut,why){var p=JSON.parse(JSON.stringify(ST.p));mut(p.screens[0].root.children[0]);var m=ST.validate(p);if(m.indexOf('состояни')<0)throw new Error(why+': '+m);}
+  bad(function(n){n.states=[1];},'массив');bad(function(n){n.states={hover:{style:{}}};},'чужое состояние');
+  bad(function(n){n.states={pressed:{style:{op:500}}};},'значение вне предела');bad(function(n){n.states={pressed:{style:{zzz:1}}};},'неизвестный ключ');
+  bad(function(n){n.states={pressed:{layout:{w:1}}};},'раскладка в состоянии');bad(function(n){n.states={pressed:5};},'не объект');
+  var p=JSON.parse(JSON.stringify(ST.p));p.screens[0].root.children[0].states={pressed:{style:{op:50,bg:'@ac'}}};eq(ST.validate(p),'');});
+T('состояния: смена проекта возвращает показ на «Обычное»; setState отвергает чужое имя',function(){fresh();eq(ST.nodes.setState('pressed'),true);eq(ST.nodes.vstate,'pressed');
+  eq(ST.nodes.setState('hover'),false);eq(ST.nodes.setState('pressed'),false);ST.set(ST.blank('Т'));eq(ST.nodes.vstate,'normal');});
+T('холст: в состоянии узлы рисуются с его отличиями, возврат на «Обычное» возвращает вид',function(){fresh();var id=add('shape');
+  setS('pressed');ok(ST.nodes.set([id],'style.op',30));var host=document.getElementById('st-canvas');ST.canvas.render();
+  var el=host.querySelector('[data-nid="'+id+'"]');eq(getComputedStyle(el).opacity,'0.3');setS('normal');ST.canvas.render();
+  eq(getComputedStyle(host.querySelector('[data-nid="'+id+'"]')).opacity,'1');});
+T('проверки: текст мельче 12 px — предупреждение, 12 — нет; скрытый узел не проверяется; запрета нет',function(){fresh();var a=add('text'),b=add('text');
+  var t=JSON.parse(JSON.stringify(node(a).style.text));t.fs=10;ok(ST.nodes.set([a],'style.text',t));
+  var w=ST.nodes.warns(root());eq(w.length,1);eq(w[0].code,'text');eq(w[0].id,a);eq(w[0].msg.indexOf('10 px')>=0,true);
+  t.fs=12;ok(ST.nodes.set([a],'style.text',t));eq(ST.nodes.warns(root()).length,0);
+  t.fs=9;ok(ST.nodes.set([b],'style.text',t));ok(ST.nodes.set([b],'hidden',true));eq(ST.nodes.warns(root()).length,0);});
+T('проверки: кнопка меньше 44×44 — предупреждение (по числам и по измерению), 44 — нет; текст-подпись «кнопки» не считается',function(){fresh();var f=add('frame');
+  ok(ST.nodes.patch([f],[['name','Кнопка меню'],['layout.w',40],['layout.h',44]],'x'));var w=ST.nodes.warns(root());eq(w.length,1);eq(w[0].code,'tap');
+  ok(ST.nodes.patch([f],[['layout.w',44]],'x'));eq(ST.nodes.warns(root()).length,0);
+  eq(ST.nodes.warns(root(),function(){return {w:44,h:32};}).length,1,'измерение с холста');
+  ok(ST.nodes.patch([f],[['layout.w','hug'],['layout.h','hug']],'x'));eq(ST.nodes.warns(root()).length,0,'без измерения размер «по содержимому» неизвестен');
+  var t=add('text',f);ok(ST.nodes.rename(t,'Подпись кнопки'));eq(ST.nodes.warns(root(),function(id){return id===t?{w:10,h:10}:{w:50,h:50};}).length,0);});
+T('проверки: узел с состоянием «нажато» тоже считается кнопкой',function(){fresh();var f=add('frame');ok(ST.nodes.patch([f],[['layout.w',30],['layout.h',30]],'x'));
+  eq(ST.nodes.warns(root()).length,0);setS('pressed');ok(ST.nodes.set([f],'style.op',80));setS('normal');eq(ST.nodes.warns(root()).length,1);});
+T('проверки: фильтры, прозрачность, наложение, поворот на шторке и над ней — предупреждение; внутри шторки — нет',function(){fresh();
+  var wr=add('frame'),sh=add('frame',wr),inner=add('shape',sh);ok(ST.nodes.rename(sh,'Шторка «Что добавляем?»'));
+  eq(ST.nodes.warns(root()).length,0);
+  ok(ST.nodes.set([inner],'style.bl',3));eq(ST.nodes.warns(root()).length,0,'у потомка шторки можно');
+  ok(ST.nodes.set([sh],'style.op',90));var w=ST.nodes.warns(root());eq(w.length,1);eq(w[0].id,sh);eq(w[0].code,'sheet');
+  ok(ST.nodes.reset([sh],['style.op']));ok(ST.nodes.patch([wr],[['style.ct',120],['style.rot',5]],'x'));w=ST.nodes.warns(root());
+  eq(w.length,1);eq(w[0].id,wr);eq(w[0].msg.indexOf('содержит шторку')>=0,true);eq(w[0].msg.indexOf('фильтры')>=0&&w[0].msg.indexOf('поворот')>=0,true);
+  ok(ST.nodes.reset([wr],['style.ct','style.rot']));eq(ST.nodes.warns(root()).length,0);
+  ok(ST.nodes.set([sh],'style.blend','multiply'));eq(ST.nodes.warns(root()).length,1);});
+T('проверки: предупреждение не блокирует правку, проект сохраняется и открывается',function(){fresh();var s=add('frame');ok(ST.nodes.rename(s,'Шторка'));
+  ok(ST.nodes.set([s],'style.bl',4));eq(ST.nodes.warns(root()).length,1);var j=JSON.stringify(ST.p),r=ST.io.parse(j);eq(!!r.project,true);eq(JSON.stringify(r.project),j);});
+T('все команды узлов идут через ST.do: на замороженном проекте ничего не падает и ничего не пишется мимо истории',function(){
+  function freeze(o){if(o&&typeof o==='object'&&!Object.isFrozen(o)){Object.freeze(o);Object.keys(o).forEach(function(k){freeze(o[k]);});}return o;}
+  fresh();var f=add('frame'),t=add('text',f),sh=add('shape'),n0;
+  function run(name,fn){freeze(ST.p);n0=ST.undoS.length;var s=JSON.stringify(ST.p);var r=fn();if(r&&r.error)throw new Error(name+': '+r.error);
+    if(ST.undoS.length!==n0+1)throw new Error(name+': не одна запись в истории ('+(ST.undoS.length-n0)+')');
+    if(JSON.stringify(ST.undoS[ST.undoS.length-1].s)!==JSON.stringify(s))throw new Error(name+': в истории не прежний проект');}
+  run('set',function(){return ST.nodes.set([sh],'style.op',50);});
+  setS('pressed');run('set в состоянии',function(){return ST.nodes.set([sh],'style.op',20);});setS('normal');
+  run('patchEach',function(){return ST.nodes.patchEach([{id:sh,pairs:[['style.rot',5]]},{id:t,pairs:[['style.op',60]]}],'x');});
+  run('rename',function(){return ST.nodes.rename(t,'Другое');});run('add',function(){return ST.nodes.add('icon',f);});
+  run('dup',function(){return ST.nodes.dup([sh]);});run('group',function(){return ST.nodes.group([sh,f]);});
+  var g=kids().filter(function(x){return x.name==='Группа';})[0].id;run('ungroup',function(){return ST.nodes.ungroup(g);});
+  run('move',function(){return ST.nodes.move(sh,f,0);});run('reorder',function(){return ST.nodes.reorder(sh,1);});
+  run('remove',function(){return ST.nodes.remove([sh]);});});
+T('история: 50 шагов при правках в состояниях тоже; 55 правок отменяются ровно 50',function(){fresh();var id=add('shape'),i;setS('pressed');
+  for(i=0;i<55;i++)ok(ST.nodes.set([id],'style.rot',i+1));eq(ST.undoS.length,50);var n=0;while(ST.undo())n++;eq(n,50);eq(node(id).states.pressed.style.rot,5);setS('normal');});
+T('объект, переданный в правку, не делится с проектом (позднее изменение объекта проект не трогает)',function(){fresh();var a=add('text'),t=JSON.parse(JSON.stringify(node(a).style.text));t.fs=10;ok(ST.nodes.set([a],'style.text',t));t.fs=9;eq(node(a).style.text.fs,10);});
+T('поворот+прозрачность+фильтр сохраняются и открываются (с состоянием в том же узле)',function(){fresh();var id=add('frame');
+  ok(ST.nodes.patch([id],[['style.rot',12],['style.op',70],['style.ct',130]],'x'));setS('pressed');ok(ST.nodes.patch([id],[['style.rot',0],['style.bl',2]],'x'));setS('normal');
+  var j=JSON.stringify(ST.p),r=ST.io.parse(j);eq(!!r.project,true);var n=ST.nodes.find(r.project.screens[0].root,id).n;
+  eq(n.style.rot,12);eq(n.style.ct,130);eq(n.states.pressed.style.bl,2);eq(JSON.stringify(r.project),j);});
 })();

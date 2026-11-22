@@ -1,7 +1,7 @@
 /* Catworking Studio: проект, команды, история (отмена/возврат). Только данные, без DOM. */
 (function(){'use strict';
 var ST=window.ST=window.ST||{};
-ST.SCHEMA=4; ST.HIST_MAX=50;
+ST.SCHEMA=5; ST.HIST_MAX=50;
 ST.p=null; ST.cur=null; ST.dirty=false; ST.undoS=[]; ST.redoS=[];
 var n=0,hs=[];
 function isO(x){return !!x&&typeof x==='object'&&!Array.isArray(x);}
@@ -28,6 +28,7 @@ ST.migrate=function(p){
   }
   if(p.schema<3){if(ST.fonts)ST.fonts.seed(p);p.schema=3;}
   if(p.schema<4){if(ST.nodes)ST.nodes.normalize(p);p.schema=4;} /* 3→4 (Шаг 4): у каждого узла есть layout, style, props, children, name */
+  if(p.schema<5)p.schema=5; /* 4→5 (Шаг 4, п. 5): у узла может быть states (отличия вида в состояниях «нажато» и «выключено»); поле необязательное, старые проекты не меняются */
   return p;
 };
 ST.validate=function(p){

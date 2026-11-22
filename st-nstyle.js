@@ -10,7 +10,7 @@ N.shapeVars=function(){var o=N.SHAPE;return '--r:'+o.r+';--rl:'+o.rl+';--bw:'+o.
 /* ctx: {dir:'row'|'column' (направление родителя), root:true} → строка CSS узла */
 N.css=function(n,p,ctx){
   ctx=ctx||{};
-  var L=n.layout||{},S=n.style||{},o=['box-sizing:border-box'],dir=ctx.dir,flt=!!L.float&&!ctx.root,fx='';
+  var L=n.layout||{},S=N.styleOf(n,ctx.state!==undefined?ctx.state:N.vstate),o=['box-sizing:border-box'],dir=ctx.dir,flt=!!L.float&&!ctx.root,fx='';
   if(n.type==='frame'){
     o.push('position:relative','display:flex','flex-direction:'+(L.dir==='row'?'row':'column'));
     if(L.gap)o.push('gap:'+L.gap+'px');
@@ -60,14 +60,14 @@ N.css=function(n,p,ctx){
 N.html=function(n,p,ctx){
   ctx=ctx||{};if(n.hidden)return '';
   var kids='',dir=n.layout&&n.layout.dir==='row'?'row':'column',inner='',cls='st-n';
-  if(n.type==='frame'){kids=(n.children||[]).map(function(c){return N.html(c,p,{dir:dir});}).join('');inner=kids;if(!kids)cls+=' st-e';}
+  if(n.type==='frame'){kids=(n.children||[]).map(function(c){return N.html(c,p,{dir:dir,state:ctx.state});}).join('');inner=kids;if(!kids)cls+=' st-e';}
   else if(n.type==='text')inner=h((n.props&&n.props.text)||'');
   else if(n.type==='icon')inner='<svg viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block">'+(N.ICONS[n.props&&n.props.icon]||N.ICONS.star)+'</svg>';
   var fl=n.layout&&n.layout.float&&!ctx.root;
   return '<div class="'+cls+(ctx.root?' st-root':'')+'" data-nid="'+h(n.id)+'" data-type="'+n.type+'" data-pd="'+(ctx.dir||'')+'"'+(n.type==='frame'?' data-dir="'+dir+'"':'')+(fl?' data-fl="1"':'')+' style="'+h(N.css(n,p,ctx))+'">'+inner+'</div>';};
 /* стиль для живого предпросмотра: узел с подставленными парами [[путь,значение],…], в проект ничего не пишется */
 N.cssWith=function(n,pairs,p,ctx){var c=JSON.parse(JSON.stringify(n));
-  pairs.forEach(function(pr){var a=pr[0].split('.'),o=c,i;
+  pairs.forEach(function(pr){var a=N.sp(pr[0]).split('.'),o=c,i; /* показано состояние: style.* пробуется как правка этого состояния */
     for(i=0;i<a.length-1;i++){if(typeof o[a[i]]!=='object'||o[a[i]]===null)o[a[i]]=/^\d+$/.test(a[i+1])?[0,0,0,0]:{};o=o[a[i]];}
     if(pr[1]===undefined)delete o[a[a.length-1]];else o[a[a.length-1]]=pr[1];});
   return N.css(c,p,ctx);};

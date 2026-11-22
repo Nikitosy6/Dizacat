@@ -1,6 +1,8 @@
 /* Catworking Studio: узлы дерева (модель, поиск, команды, проверки значений). Без DOM. Объект ST.nodes.
    Узел: {id,type,name,hidden?,layout,style,props,children}. Размеры: layout.w/h = 'fill' | 'hug' | число px (нет поля = 'hug').
-   «На плаву»: layout.float=true + layout.x/y (абсолютное положение внутри родителя). Цвета: «@имя» токен, «@g:имя» градиент, либо #hex. */
+   «На плаву»: layout.float=true + layout.x/y (абсолютное положение внутри родителя). Цвета: «@имя» токен, «@g:имя» градиент, либо #hex.
+   Состояния (Шаг 4, п. 5): n.states={pressed:{style:{…}},disabled:{style:{…}}} — только отличия вида от обычного; размер и раскладка у всех состояний общие.
+   Что показывает холст: N.vstate ('normal'|'pressed'|'disabled', состояние студии, в проект не пишется). Пока выбрано не «normal», правки style.* уходят в states.<имя>.style.*. */
 (function(){'use strict';
 var ST=window.ST=window.ST||{},N=ST.nodes={};
 function isO(x){return !!x&&typeof x==='object'&&!Array.isArray(x);}
@@ -10,6 +12,15 @@ N.TYPE_MARK={frame:'▭',text:'T',icon:'★',image:'▨',shape:'◯'};
 N.SHAPE={r:'14px',rl:'22px',bw:'1.5px',ledge:'3px'}; /* значения формы профиля «Макеты Nunito» (studio-profiles.json); профилей в коде пока нет (Шаг 1А) */
 N.SHAPE_REF={'var:r':'r','var:rl':'rl','var:bw':'bw','var:ledge':'ledge'};
 N.DEPTH_MAX=40;N.COUNT_MAX=5000;
+N.STATES=['normal','pressed','disabled'];N.STATE_NAME={normal:'Обычное',pressed:'Нажато',disabled:'Выключено'};
+N.vstate='normal';
+N.setState=function(s){if(N.STATES.indexOf(s)<0||s===N.vstate)return false;N.vstate=s;ST.emit('state');return true;};
+/* путь style.* при показанном состоянии превращается в states.<имя>.style.*; остальные пути не меняются */
+N.sp=function(p){var s=N.vstate;return s!=='normal'&&/^style\./.test(p)?'states.'+s+'.'+p:p;};
+/* вид узла в состоянии st: обычный стиль + отличия состояния (вложенные bd, ledge, sh, rotO, text склеиваются по ключам, остальное заменяется) */
+N.styleOf=function(n,st){var S=n.style||{};if(!st||st==='normal')return S;
+  var o=n.states&&n.states[st]&&n.states[st].style;if(!isO(o))return S;
+  var r=Object.assign({},S);Object.keys(o).forEach(function(k){var v=o[k];r[k]=isO(v)&&isO(S[k])?Object.assign({},S[k],v):v;});return r;};
 N.BLEND=['normal','multiply','screen','overlay','darken','lighten','color-dodge','soft-light','hard-light','difference','luminosity'];
 N.ICONS={star:'<polygon points="12 2.5 15 9 22 9.5 16.7 14.3 18.3 21.3 12 17.6 5.7 21.3 7.3 14.3 2 9.5 9 9"/>',
   plus:'<path d="M12 5v14M5 12h14"/>',check:'<path d="M5 13l4 4L19 7"/>',close:'<path d="M6 6l12 12M18 6L6 18"/>',
@@ -43,6 +54,7 @@ function colorOk(v,grad){
   return !!(ST.tok&&ST.tok.parse(v));}
 /* '' если значение допустимо, иначе человеческое сообщение */
 N.checkVal=function(path,v){
+  var sm=/^states\.(pressed|disabled)\.(style\..+)$/.exec(path);if(sm)path=sm[2];
   var key=N.specKey(path),sp=N.SPEC[key],num=typeof v==='number'&&isFinite(v);
   if(key==='layout.w'||key==='layout.h'){
     if(v==='fill'||v==='hug')return '';
@@ -87,7 +99,38 @@ ST.sel=[];
 N.pruneSel=function(){var r=N.root(),a=r?ST.sel.filter(function(id){return !!N.find(r,id);}):[];
   if(a.length!==ST.sel.length){ST.sel=a;return true;}return false;};
 N.selNodes=function(){var r=N.root();return ST.sel.map(function(id){var f=N.find(r,id);return f&&f.n;}).filter(Boolean);};
-ST.on(function(k){if(k==='load')ST.sel=[];});
+ST.on(function(k){if(k==='load'){ST.sel=[];N.vstate='normal';}});
+
+
+/* ---------- проверки качества (Шаг 4, п. 6; STUDIO_PLAN P5 п. 9 и P6 п. 5): только предупреждения, ничего не запрещают ----------
+   N.warns(root, measure?) → [{id,name,code,msg}]; measure(id) → {w,h} в px (DOM; модуль DOM не трогает), без неё берутся числовые layout.w/h.
+   Кнопкой считается узел с «кнопк…/button/btn» в имени или с состоянием «нажато»; шторкой — рамка с «шторк…/sheet/модал…/dialog» в имени. */
+N.MIN_TAP=44;N.MIN_TEXT=12;
+var BTN=/кнопк|button|btn/i,SHEET=/шторк|sheet|модал|modal|dialog|диалог/i;
+N.isButton=function(n){return n.type!=='text'&&(BTN.test(n.name||'')||!!(n.states&&n.states.pressed));};
+N.isSheet=function(n){return n.type==='frame'&&SHEET.test(n.name||'');};
+function layers(n){var S=n.style||{},r=[];
+  if(typeof S.op==='number'&&S.op!==100)r.push('прозрачность');
+  if(['br','ct','sa'].some(function(k){return typeof S[k]==='number'&&S[k]!==100;})||(typeof S.bl==='number'&&S.bl>0))r.push('фильтры');
+  if(S.blend&&S.blend!=='normal')r.push('режим наложения');
+  if(typeof S.rot==='number'&&S.rot)r.push('поворот');
+  return r;}
+N.warns=function(root,measure){
+  var out=[],seen={};if(!root)return out;
+  function add(n,code,msg){var k=n.id+'|'+code;if(seen[k])return;seen[k]=1;out.push({id:n.id,name:n.name,code:code,msg:msg});}
+  (function rec(n,anc,top){
+    if(n.hidden)return;var L=n.layout||{},S=n.style||{};
+    if(!top&&N.isButton(n)){
+      var z=measure?measure(n.id):null,w=z?z.w:(typeof L.w==='number'?L.w:null),h=z?z.h:(typeof L.h==='number'?L.h:null);
+      if((w!==null&&w<N.MIN_TAP)||(h!==null&&h<N.MIN_TAP))add(n,'tap','Кнопка «'+n.name+'»: '+(w===null?'?':Math.round(w))+'×'+(h===null?'?':Math.round(h))+' px, для касания нужно не меньше '+N.MIN_TAP+'×'+N.MIN_TAP+'.');}
+    if(n.type==='text'){var t=S.text;
+      if(t&&typeof t.fs==='number'&&t.fs<N.MIN_TEXT)add(n,'text','Текст «'+n.name+'»: '+t.fs+' px, мельче '+N.MIN_TEXT+' px читается плохо.');}
+    if(N.isSheet(n)){
+      anc.concat([n]).forEach(function(x){var r=layers(x);if(!r.length)return;
+        add(x,'sheet',x===n?'Шторка «'+n.name+'»: '+r.join(', ')+' создаёт новый слой наложения и может сломать порядок слоёв (z-index) шторок.'
+          :'«'+x.name+'» содержит шторку «'+n.name+'»: '+r.join(', ')+' создаёт новый слой наложения и может сломать её порядок слоёв.');});}
+    (n.children||[]).forEach(function(c){rec(c,anc.concat([n]),false);});})(root,[],true);
+  return out;};
 
 /* ---------- создание ---------- */
 function autoName(root,type){var c=0,b=N.TYPE_NAME[type];walk(root,function(n,par,i,d){if(d>0&&n.type===type)c++;},null,0,0);return b+' '+(c+1);}
@@ -116,6 +159,12 @@ N.validate=function(p){var msg='',cnt=0;
     ['layout','style','props'].forEach(function(k){if(n[k]!==undefined&&!isO(n[k]))msg=where+': повреждено поле '+k;});
     if(msg)return;
     if(n.children!==undefined&&!Array.isArray(n.children)){msg=where+': повреждён список вложенных узлов';return;}
+    if(n.states!==undefined){
+      if(!isO(n.states)){msg=where+': повреждены состояния узла';return;}
+      Object.keys(n.states).forEach(function(k){var o=n.states[k];if(msg)return;
+        if((k!=='pressed'&&k!=='disabled')||!isO(o)||Object.keys(o).some(function(x){return x!=='style';})||(o.style!==undefined&&!isO(o.style))){msg=where+': повреждены состояния узла';return;}
+        Object.keys(o.style||{}).forEach(function(sk){if(msg)return;var e=N.checkVal('style.'+sk,o.style[sk]);if(e)msg=where+': состояние «'+k+'», '+e;});});
+      if(msg)return;}
     (n.children||[]).forEach(function(c){rec(c,d+1,where);});}
   (p.screens||[]).forEach(function(s,i){if(isO(s.root))rec(s.root,0,'экран №'+(i+1));});
   return msg;};
@@ -127,13 +176,17 @@ function setIn(n,path,val){
     if(o[k]===undefined||o[k]===null||typeof o[k]!=='object'){if(val===undefined)return;o[k]=/^\d+$/.test(path[i+1])?[0,0,0,0]:{};}
     o=o[k];chain.push(o);}
   k=path[path.length-1];
-  if(val===undefined){if(Array.isArray(o))return;delete o[k];}else o[k]=val;
-  for(i=chain.length-1;i>=2;i--){ /* пустые вложенные объекты убираем, чтобы стиль оставался чистым (сами style/layout/props остаются) */
+  if(val===undefined){if(Array.isArray(o))return;delete o[k];}else o[k]=val&&typeof val==='object'?JSON.parse(JSON.stringify(val)):val; /* объект копируется: проект не должен делить его с вызывающим */
+  for(i=chain.length-1;i>=(path[0]==='states'?1:2);i--){ /* пустые вложенные объекты убираем, чтобы стиль оставался чистым (сами style/layout/props остаются) */
     if(isO(chain[i])&&!Object.keys(chain[i]).length)delete chain[i-1][path[i-1]];else break;}}
 function pathOf(p){return Array.isArray(p)?p:String(p).split('.');}
 /* patchEach([{id,pairs:[[путь,значение|undefined],…]},…], метка): одна запись в истории; undefined = сбросить параметр */
 N.patchEach=function(items,label){
   var i,j,e,failed=false;
+  if(N.vstate!=='normal'){ /* показано состояние: вид (style.*) пишется в него, размер, раскладка и содержимое общие */
+    for(i=0;i<items.length;i++)for(j=0;j<items[i].pairs.length;j++)if(/^(layout|props)\./.test(pathOf(items[i].pairs[j][0]).join('.')))
+      return {error:'Размер, раскладка и содержимое общие для всех состояний. Переключите холст на «Обычное».'};
+    items=items.map(function(it){return {id:it.id,pairs:it.pairs.map(function(pr){var q=pathOf(pr[0]).join('.');return [N.sp(q),pr[1]];})};});}
   for(i=0;i<items.length;i++)for(j=0;j<items[i].pairs.length;j++){var v=items[i].pairs[j][1];
     if(v!==undefined){e=N.checkVal(pathOf(items[i].pairs[j][0]).join('.'),v);if(e)return {error:e};}}
   var ok=ST.do(label||'параметр узла',function(d){var s=N.scrIn(d),hit=0;
