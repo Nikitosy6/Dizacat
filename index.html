@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -8,6 +9,7 @@
 <link rel="stylesheet" href="studio.css">
 <link rel="stylesheet" href="studio-fonts.css">
 <link rel="stylesheet" href="studio-nodes.css">
+<link rel="stylesheet" href="studio-comp.css">
 </head>
 <body>
 <div class="st-app" id="st-app">
@@ -44,6 +46,7 @@
   </div>
 </div>
 <div class="st-toast" id="st-toast" role="status"></div>
+
 <script src="st-tokens.js"></script>
 <script src="st-fonts.js"></script>
 <script src="st-store.js"></script>
@@ -56,7 +59,24 @@
 <script src="st-fontui.js"></script>
 <script src="st-nodeui.js"></script>
 <script src="st-insp.js"></script>
+<script src="st-profiles.js"></script>
+<script src="st-icons.js"></script>
+<script src="st-comp.js"></script>
+<script src="st-presets.js"></script>
+<script src="st-compui.js"></script>
 <script src="st-ui.js"></script>
-<script>try{ST.ui.boot();}catch(e){document.body.insertAdjacentHTML('afterbegin','<p style="padding:16px;font:16px sans-serif">Студия не запустилась: '+String(e.message).replace(/</g,'&lt;')+'</p>');}</script>
+
+<script>
+try {
+  ST.ui.boot();
+} catch(e) {
+  document.body.insertAdjacentHTML(
+    'afterbegin',
+    '<p style="padding:16px;font:16px sans-serif">Студия не запустилась: ' +
+    String(e.message).replace(/</g,'&lt;') +
+    '</p>'
+  );
+}
+</script>
 </body>
 </html>
