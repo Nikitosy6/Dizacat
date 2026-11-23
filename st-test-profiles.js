@@ -21,7 +21,7 @@ function bad(mut,sub){fresh();var c=JSON.parse(JSON.stringify(ST.p));mut(c);var 
   var txt=JSON.stringify(c),r=ST.io.parse(txt);eq(!!r.error,true);eq(r.raw,txt,'исходный текст не затирается');}
 
 T('проект: схема 6, рабочая копия и пять встроенных, токенов в корне файла нет, проект валиден',function(){fresh();var p=ST.p,j=JSON.parse(JSON.stringify(p));
-  eq(ST.SCHEMA,6);eq(p.schema,6);eq(p.profiles.length,6);eq(p.profiles[0].id,'project-main');eq(p.profiles[0].locked,false);
+  eq(ST.SCHEMA,7);eq(p.schema,7);eq(p.profiles.length,6);eq(p.profiles[0].id,'project-main');eq(p.profiles[0].locked,false);
   eq(p.profiles.filter(function(x){return x.locked;}).length,5);
   eq(p.profiles.map(function(x){return x.id;}).slice(1).join(),'catworking-now,mockups-nunito,clean-slate,pixel,contrast');
   eq('tokens' in j,false);eq('fonts' in j,false);eq('text' in j,false);eq('tokens' in p,true,'посредник читается');
@@ -36,7 +36,7 @@ T('миграция 5→6: токены, шрифты и текст проект
   var o=legacy(5);o.tokens.light.ac='#112233';o.tokens.light.brand='#abcdef';o.tokens.dark.brand='#123456';o.tokens.info.brand={app:'',role:'мой'};
   ['light','dark','info'].forEach(function(k){delete o.tokens[k].t2;});o.fonts.display='Rubik';o.text.title.fs=40;
   var tree=JSON.stringify(o.screens.map(function(s){return s.root;})),txt=JSON.stringify(o),r=ST.io.parse(txt);
-  eq(!!r.project,true,r.error);var m=r.project;eq(m.schema,6);eq(ST.validate(m),'');
+  eq(!!r.project,true,r.error);var m=r.project;eq(m.schema,7);eq(ST.validate(m),'');
   var j=JSON.parse(JSON.stringify(m));eq('tokens' in j||'fonts' in j||'text' in j,false);
   eq(m.profiles[0].id,'project-main');eq(m.profiles[0].tokens.light.ac,'#112233');eq(m.profiles[0].tokens.light.brand,'#abcdef');eq(m.profiles[0].tokens.info.brand.role,'мой');
   eq(m.profiles[0].fonts.display,'Rubik');eq(m.profiles[0].text.title.fs,40);
@@ -49,8 +49,8 @@ T('миграция 5→6: токены, шрифты и текст проект
 function pr0(m,id){return m.profiles.filter(function(q){return q.id===id;})[0];}
 T('миграция из схем 1 и 3: общий путь доходит до 6, начальный набор токенов на месте',function(){
   var a=ST.io.parse(JSON.stringify({schema:1,meta:{},tokens:{light:{},dark:{}},components:[],assets:{},screens:[]}));eq(!!a.project,true,a.error);
-  eq(a.project.schema,6);eq(Object.keys(a.project.profiles[0].tokens.light).length,22);
-  var b=ST.io.parse(JSON.stringify(legacy(3)));eq(!!b.project,true,b.error);eq(b.project.schema,6);eq(b.project.screens.length,2);});
+  eq(a.project.schema,7);eq(Object.keys(a.project.profiles[0].tokens.light).length,22);
+  var b=ST.io.parse(JSON.stringify(legacy(3)));eq(!!b.project,true,b.error);eq(b.project.schema,7);eq(b.project.screens.length,2);});
 T('проверка: повреждения профилей находятся по-русски, исходный текст не затирается',function(){
   bad(function(c){c.profiles[1].name=c.profiles[0].name.toUpperCase();},'два профиля с названием');
   bad(function(c){c.profiles[2].id=c.profiles[1].id;},'одним id');
