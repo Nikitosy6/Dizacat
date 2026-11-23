@@ -34,6 +34,7 @@ function backup(){ /* страховка: текущий проект уходи
 }
 ui.menu=function(){
   var items=[['new','Новый проект'],['open','Открыть файл .json'],['save','Сохранить в файл .json'],['snaps','Версии (автокопии)']];
+  if(ST.impui)items.push(['examples','Примеры (макеты «Предметы»)'],['impmk','Импорт разметки']);
   return ui.modal({title:ST.title(),html:items.map(function(x){
     return '<button class="st-b st-row" data-k="'+x[0]+'">'+x[1]+'</button>';}).join(''),buttons:[{k:'x',t:'Закрыть'}]})
   .then(function(k){
@@ -48,6 +49,8 @@ ui.menu=function(){
       var go=pr.length?ui.confirm('Есть токены без значения','Токенов с проблемами: '+pr.length+' (не заданы в обеих темах или неверный цвет). Файл сохранится, но дизайн лучше сначала исправить. Сохранить сейчас?','Сохранить'):Promise.resolve(true);
       return go.then(function(ok){if(ok){var n=ST.io.download(ST.p);ui.toast('Файл '+n+' скачан (папка «Загрузки»)');}});}
     if(k==='snaps')return ui.snaps();
+    if(k==='examples')return ST.impui.examples();
+    if(k==='impmk')return ST.impui.paste();
   });
 };
 ui.snaps=function(){

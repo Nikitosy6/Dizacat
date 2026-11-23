@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Конвертер макетов · Catworking Studio</title>
+<!-- Одноразовый инструмент Шага 6. Не часть студии: студия его не подключает.
+     Читает «Предметы_редизайн.html» (двойная упаковка), достаёт из шести iframe внутренние шаблоны,
+     чистит служебные куски и выдаёт st-mockups.js. Всё считается в браузере, в сеть ничего не уходит. -->
+<style>
+:root{--bg:#fff1de;--fg:#3b2616;--mu:#86654c;--ln:#f0dcc2;--ac:#f59a23;--act:#3b1f08;--card:#fffaf2;--bad:#d64545;--ok:#2e7d4f}
+@media (prefers-color-scheme:dark){:root{--bg:#1c1410;--fg:#fbebd6;--mu:#c4a98e;--ln:#3d2c20;--ac:#f5a02e;--act:#2b1606;--card:#2a1e16;--bad:#f2706b;--ok:#4cc27f}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.45 system-ui,sans-serif;
+  padding:16px max(16px,env(safe-area-inset-right)) max(24px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}
+.st-conv{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+h1{margin:0;font-size:24px}
+p{margin:0}
+.st-mut{color:var(--mu);font-size:14px}
+.st-b{display:inline-flex;align-items:center;justify-content:center;min-height:44px;min-width:44px;padding:0 18px;border-radius:14px;
+  border:1.5px solid var(--ln);background:var(--card);color:var(--fg);font:700 16px system-ui,sans-serif;cursor:pointer;position:relative;overflow:hidden}
+.st-b.st-pri{background:var(--ac);color:var(--act);border-color:var(--ac)}
+.st-b[disabled]{opacity:.45;cursor:default}
+.st-b input{position:absolute;inset:0;opacity:0;cursor:pointer;font-size:16px}
+.st-row{display:flex;flex-wrap:wrap;gap:10px}
+.st-box{background:var(--card);border:1.5px solid var(--ln);border-radius:16px;padding:12px 14px}
+.st-box.st-err{border-color:var(--bad)}
+.st-box.st-okk{border-color:var(--ok)}
+pre{margin:0;white-space:pre-wrap;overflow-wrap:anywhere;font:13px/1.5 ui-monospace,monospace}
+.st-prev{display:flex;flex-wrap:wrap;gap:12px}
+.st-pv{display:flex;flex-direction:column;gap:4px;font-size:13px}
+.st-pvw{width:195px;height:422px;overflow:hidden;border:1.5px solid var(--ln);border-radius:12px;background:#fff}
+.st-pvw iframe{width:390px;height:844px;border:0;transform:scale(.5);transform-origin:0 0;display:block}
+</style>
+</head>
+<body>
+<main class="st-conv">
+  <h1>Конвертер макетов</h1>
+  <p class="st-mut">Выберите файл «Предметы_редизайн.html» (около 1,7 МБ). Конвертер достанет шесть экранов, уберёт служебные теги упаковки, исправит <code>sc-camel-view-box</code> на <code>viewBox</code> и соберёт файл <b>st-mockups.js</b> для студии. Файл никуда не отправляется.</p>
+  <div class="st-row">
+    <label class="st-b st-pri">Выбрать файл макетов<input type="file" id="st-cfile" accept=".html,text/html"></label>
+    <button class="st-b" id="st-cdl" disabled>Скачать st-mockups.js</button>
+    <button class="st-b" id="st-crep" disabled>Скачать отчёт</button>
+  </div>
+  <div class="st-box" id="st-cmsg" role="status">Файл пока не выбран.</div>
+  <div class="st-prev" id="st-cprev"></div>
+</main>
+<script>
+(function(){'use strict';
+var ST=window.ST=window.ST||{},c=ST.conv={};
+var VARS=['bg','card','tx','mu','ln','ac','act','ton','ed','trk','t0','t1','t2'];
+var THEME={'Светлая':'light','Тёмная':'dark'},KEY={'Предметы':'subjects','Шторка':'sheet','Фокус':'focus'};
+var OPEN='<scr'+'ipt type="__bundler/',CLOSE='</scr'+'ipt>';
+c.last=null;
+
+function tag(src,type){var a=OPEN+type+'">',i=src.indexOf(a);if(i<0)return null;i+=a.length;var j=src.indexOf(CLOSE,i);return j<0?null:src.slice(i,j).trim();}
+function b64(s){var r=atob(s),u=new Uint8Array(r.length);for(var i=0;i<r.length;i++)u[i]=r.charCodeAt(i);return u;}
+function gunzip(u){
+  if(typeof DecompressionStream==='undefined')return Promise.reject(new Error('браузер не умеет распаковывать gzip (нужен Chrome или Samsung Internet не старше двух лет)'));
+  var ds=new DecompressionStream('gzip'),w=ds.writable.getWriter();w.write(u);w.close();
+  return new Response(ds.readable).arrayBuffer().then(function(b){return new Uint8Array(b);});
+}
+function asset(a){var u=b64(a.data);return (a.compressed?gunzip(u):Promise.resolve(u)).then(function(x){return new TextDecoder('utf-8').decode(x);});}
+function e(s){return String(s).replace(/[&<>"']/g,function(k){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[k];});}
+
+/* внутренний шаблон → запись {key, theme, title, w, h, vars, rootStyle, css, html} */
+c.clean=function(tpl,title){
+  var m=/^(Светлая|Тёмная)\s*[·•|-]\s*(.+)$/.exec(title.trim());
+  if(!m||!THEME[m[1]]||!KEY[m[2].trim()])throw new Error('название экрана «'+title+'» не распознано (ждали «Светлая · Предметы» и т. п.)');
+  var doc=new DOMParser().parseFromString(tpl,'text/html');
+  var dc=doc.querySelector('x-dc')||doc.body,s=dc.querySelector('.s');
+  if(!s)throw new Error('в экране «'+title+'» нет корня .s');
+  var css=[].map.call(dc.querySelectorAll('style'),function(x){return x.textContent;}).join('\n')
+    .replace(/\/\*[\s\S]*?\*\//g,'').replace(/@font-face\s*\{[^}]*\}/g,'').replace(/\n\s*\n+/g,'\n').trim();
+  var vars={},rest=[];
+  (s.getAttribute('style')||'').split(';').forEach(function(d){
+    var i=d.indexOf(':');if(i<0)return;var k=d.slice(0,i).trim(),v=d.slice(i+1).trim();
+    if(k.indexOf('--')===0)vars[k.slice(2)]=v;else if(k)rest.push(k+':'+v);});
+  var fixed=0;
+  [].forEach.call(s.querySelectorAll('[sc-camel-view-box]'),function(n){n.setAttribute('viewBox',n.getAttribute('sc-camel-view-box'));n.removeAttribute('sc-camel-view-box');fixed++;});
+  var html=s.innerHTML;
+  return {key:KEY[m[2].trim()],theme:THEME[m[1]],title:title,w:390,h:844,vars:vars,rootStyle:rest.join(';'),css:css,html:html,
+    stat:{nodes:s.querySelectorAll('*').length+1,svg:s.querySelectorAll('svg').length,fixed:fixed,hard:hard(css+'\n'+html)}};
+};
+function hard(t){var o={},r=t.match(/#[0-9a-fA-F]{3,8}\b|rgba?\([^)]*\)/g)||[];r.forEach(function(x){x=x.toLowerCase().replace(/\s+/g,'');o[x]=(o[x]||0)+1;});return o;}
+
+/* различия между светлой и тёмной версией одного экрана, кроме значений токенов */
+c.pairDiff=function(a,b){
+  function ln(r){return (r.rootStyle+'\n'+r.html).replace(/></g,'>\n<').split('\n');}
+  var x=ln(a),y=ln(b),out=[],n=Math.max(x.length,y.length);
+  for(var i=0;i<n;i++)if(x[i]!==y[i])out.push({light:x[i]||'',dark:y[i]||''});
+  return out;
+};
+
+/* страница для просмотра очищенного экрана; fonts — ссылка на fonts/fonts.css, если нужна */
+c.page=function(r,fonts){
+  var v=Object.keys(r.vars).map(function(k){return '--'+k+':'+r.vars[k]+';';}).join('');
+  return '<!DOCTYPE html><html lang="ru"><head><meta charset="utf-8">'+(fonts?'<link rel="stylesheet" href="'+e(fonts)+'">':'')+
+    '<style>'+r.css+'</style></head><body><div class="s" style="'+e(v+r.rootStyle)+'">'+r.html+'</div></body></html>';
+};
+
+c.js=function(list){
+  var rec=list.map(function(r){return JSON.stringify({key:r.key,theme:r.theme,title:r.title,w:r.w,h:r.h,vars:r.vars,rootStyle:r.rootStyle,css:r.css,html:r.html});});
+  return '/* Catworking Studio: шесть экранов макета «Предметы» (данные Шага 6): Светлая и Тёмная × Предметы, Шторка, Фокус.\n'+
+    '   Сделано tools/convert-mockups.html из Предметы_редизайн.html: служебные теги упаковки убраны, sc-camel-view-box заменён на viewBox.\n'+
+    '   Вручную не править: файл пересобирается конвертером. vars = значения токенов макета, css = стили экрана, html = содержимое корня .s. */\n'+
+    "(function(){'use strict';\nvar ST=window.ST=window.ST||{};\nST.mockups=[\n"+rec.join(',\n')+'\n];\n})();\n';
+};
+
+c.run=function(src){
+  var man=tag(src,'manifest'),ord=tag(src,'page_order'),out=tag(src,'template');
+  if(!man||!ord||!out)return Promise.reject(new Error('это не доска макетов: в файле нет данных упаковки (manifest, page_order, template)'));
+  var M,O,T;
+  try{M=JSON.parse(man);O=JSON.parse(ord);T=JSON.parse(out);}catch(x){return Promise.reject(new Error('данные упаковки повреждены ('+x.message+')'));}
+  var titles={},re=/<h2>([^<]*)<\/h2>\s*<iframe[^>]*src="about:blank#([0-9a-f-]+)"/g,t;
+  while((t=re.exec(T)))titles[t[2]]=t[1];
+  if(!O.length)return Promise.reject(new Error('в файле нет ни одного экрана'));
+  return Promise.all(O.map(function(id){
+    if(!M[id]||!titles[id])return Promise.reject(new Error('экран '+id+' не найден в упаковке'));
+    return asset(M[id]).then(function(page){
+      var inner=tag(page,'template');
+      if(!inner)throw new Error('в экране «'+titles[id]+'» нет внутреннего шаблона');
+      return c.clean(JSON.parse(inner),titles[id]);
+    });
+  })).then(function(list){
+    var pairs=[],warn=[];
+    list.forEach(function(r){
+      var miss=VARS.filter(function(k){return !r.vars[k];});
+      if(miss.length)warn.push('«'+r.title+'»: нет токенов '+miss.join(', '));
+      var extra=Object.keys(r.vars).filter(function(k){return VARS.indexOf(k)<0;});
+      if(extra.length)warn.push('«'+r.title+'»: лишние токены '+extra.join(', '));});
+    ['subjects','sheet','focus'].forEach(function(k){
+      var a=list.filter(function(r){return r.key===k&&r.theme==='light';})[0],b=list.filter(function(r){return r.key===k&&r.theme==='dark';})[0];
+      if(a&&b)pairs.push({key:k,diff:c.pairDiff(a,b),same:a.css===b.css});else warn.push('экран «'+k+'»: нет пары светлая/тёмная');});
+    var res={list:list,pairs:pairs,warn:warn,js:c.js(list)};
+    res.report=c.report(res,src.length);
+    return res;
+  });
+};
+
+c.report=function(res,size){
+  var L=['Конвертер макетов: файл '+Math.round(size/1024)+' КБ, найдено экранов: '+res.list.length+'.',''];
+  res.list.forEach(function(r,i){
+    var hc=Object.keys(r.stat.hard),n=0;hc.forEach(function(k){n+=r.stat.hard[k];});
+    L.push((i+1)+'. '+r.title+' → '+r.key+'/'+r.theme+': узлов '+r.stat.nodes+', значков '+r.stat.svg+' (viewBox исправлен у '+r.stat.fixed+'), токенов '+Object.keys(r.vars).length+' из '+VARS.length+', жёстких цветов в стилях и разметке: '+n+' ('+hc.length+' разных)');
+    if(hc.length)L.push('   '+hc.join(', '));
+  });
+  L.push('');
+  res.pairs.forEach(function(p){
+    L.push('«'+p.key+'»: светлая и тёмная версии '+(p.diff.length||!p.same?'отличаются не только токенами':'отличаются только токенами')+(p.same?'':' (разные стили)')+'.');
+    p.diff.forEach(function(d){L.push('   светлая: '+d.light);L.push('   тёмная:  '+d.dark);});
+  });
+  if(res.warn.length){L.push('');L.push('Предупреждения:');res.warn.forEach(function(w){L.push('   '+w);});}
+  return L.join('\n');
+};
+
+/* ---------- интерфейс ---------- */
+function $(s){return document.querySelector(s);}
+function save(name,text,type){
+  var url=URL.createObjectURL(new Blob([text],{type:type||'text/plain'})),a=document.createElement('a');
+  a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url);},4000);
+}
+function msg(t,cls){var m=$('#st-cmsg');m.className='st-box'+(cls?' '+cls:'');m.textContent='';var p=document.createElement('pre');p.textContent=t;m.appendChild(p);}
+function previews(list){
+  var box=$('#st-cprev');box.textContent='';
+  list.forEach(function(r){
+    var d=document.createElement('div');d.className='st-pv';
+    var l=document.createElement('span');l.textContent=r.title;
+    var w=document.createElement('div');w.className='st-pvw';
+    var f=document.createElement('iframe');f.setAttribute('sandbox','allow-same-origin');f.title=r.title;f.srcdoc=c.page(r,'../fonts/fonts.css');
+    w.appendChild(f);d.appendChild(l);d.appendChild(w);box.appendChild(d);});
+}
+function pick(file){
+  if(!file)return;
+  if(file.size>20*1048576){msg('Файл больше 20 МБ, это не доска макетов. Ничего не изменено.','st-err');return;}
+  msg('Читаю «'+file.name+'»…');$('#st-cdl').disabled=true;$('#st-crep').disabled=true;$('#st-cprev').textContent='';
+  var r=new FileReader();
+  r.onerror=function(){msg('Не удалось прочитать файл. Ничего не изменено. Попробуйте выбрать его ещё раз.','st-err');};
+  r.onload=function(){
+    c.run(String(r.result)).then(function(res){
+      c.last=res;previews(res.list);msg(res.report,res.warn.length?'':'st-okk');
+      $('#st-cdl').disabled=false;$('#st-crep').disabled=false;
+    }).catch(function(x){c.last=null;msg('Не получилось: '+x.message+'. Ничего не сохранено. Выберите файл «Предметы_редизайн.html» целиком.','st-err');});
+  };
+  r.readAsText(file);
+}
+document.addEventListener('DOMContentLoaded',function(){
+  $('#st-cfile').addEventListener('change',function(ev){pick(ev.target.files&&ev.target.files[0]);ev.target.value='';});
+  $('#st-cdl').addEventListener('click',function(){if(c.last)save('st-mockups.js',c.last.js,'text/javascript');});
+  $('#st-crep').addEventListener('click',function(){if(c.last)save('convert-report.txt',c.last.report,'text/plain');});
+});
+})();
+</script>
+</body>
+</html>
