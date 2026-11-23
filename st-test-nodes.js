@@ -8,10 +8,10 @@ function err(r,why){if(!r||!r.error)throw new Error('ожидали отказ: 
 function ok(r){if(!r||r.error)throw new Error('отказ: '+(r&&r.error));}
 function node(id){var f=ST.nodes.get(id);return f&&f.n;}
 
-T('схема: миграция 3→4 дополняет узлы, 4→5 только поднимает номер, повторный запуск ничего не меняет',function(){
+T('схема: миграция 3→4 дополняет узлы, 4→5 только поднимает номер, 5→6 вводит профили, повторный запуск ничего не меняет',function(){
   var a={schema:3,meta:{},tokens:{light:{},dark:{},info:{},grad:{}},components:[],assets:{},fonts:{},text:{},
     screens:[{id:'s',name:'x',w:390,h:844,root:{id:'r',type:'frame',children:[{id:'a',type:'text'}]}}]};
-  eq(ST.validate(a),'');var m=ST.migrate(a);eq(m.schema,5);eq(ST.SCHEMA,5);
+  eq(ST.validate(a),'');var m=ST.migrate(a);eq(m.schema,ST.SCHEMA);eq(ST.SCHEMA,7);
   var c=m.screens[0].root.children[0];eq(typeof c.layout,'object');eq(typeof c.style,'object');eq(Array.isArray(c.children),true);eq(typeof c.name,'string');
   eq(JSON.stringify(ST.migrate(JSON.parse(JSON.stringify(m)))),JSON.stringify(m));});
 T('проверка дерева: неизвестный тип, нет id, битый стиль, слишком глубоко',function(){fresh();
@@ -133,9 +133,9 @@ T('состояния: значения проверяются как обычн
   ok(ST.nodes.reset([id],['style.bd.w']));eq(node(id).states.pressed.style.bd,undefined);
   ok(ST.nodes.reset([id],['style.op']));eq(node(id).states,undefined,'пустое states убрано');
   ok(ST.nodes.set([id],'style.op',50));ok(ST.nodes.patch([id],[['states.pressed',undefined]],'убрать'));eq(node(id).states,undefined);setS('normal');});
-T('состояния: одна запись в истории, отмена и возврат; номер схемы 5; файл открывается и сохраняется без изменений',function(){fresh();var id=add('shape'),n0=ST.undoS.length;setS('disabled');
+T('состояния: одна запись в истории, отмена и возврат; номер схемы 6; файл открывается и сохраняется без изменений',function(){fresh();var id=add('shape'),n0=ST.undoS.length;setS('disabled');
   ok(ST.nodes.patch([id],[['style.op',45],['style.sa',30]],'заготовка'));eq(ST.undoS.length,n0+1);eq(node(id).states.disabled.style.sa,30);
-  var s=JSON.stringify(ST.p),r=ST.io.parse(s);eq(!!r.project,true);eq(JSON.stringify(r.project),s);eq(r.project.schema,5);
+  var s=JSON.stringify(ST.p),r=ST.io.parse(s);eq(!!r.project,true);eq(JSON.stringify(r.project),s);eq(r.project.schema,ST.SCHEMA);
   ST.undo();eq(node(id).states,undefined);ST.redo();eq(node(id).states.disabled.style.op,45);setS('normal');});
 T('состояния: дубль узла берёт состояния с собой, у копии свои id',function(){fresh();var id=add('shape');setS('pressed');ok(ST.nodes.set([id],'style.op',60));setS('normal');
   ok(ST.nodes.dup([id]));var c=kids()[1];eq(c.states.pressed.style.op,60);c.states.pressed.style.op=1;eq(node(id).states.pressed.style.op,60);});
