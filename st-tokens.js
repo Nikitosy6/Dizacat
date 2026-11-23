@@ -124,16 +124,20 @@ tok.checkName=function(p,name,except,isGrad){
   return '';};
 function usedText(list){return list.slice(0,4).join('; ')+(list.length>4?' и ещё '+(list.length-4):'');}
 function res(ok,err){return ok?{ok:true}:{error:err||'Изменение не выполнено.'};}
+/* профили (Шаг 1А): набор имён токенов и градиентов одинаков во всех профилях, поэтому добавление, переименование и удаление
+   делаются во всех сразу, а значения цветов правятся только в активном профиле (он не должен быть встроенным) */
+function ALL(x){return ST.prof?ST.prof.list(x):[{tokens:x.tokens}];}
+function lockErr(){return ST.prof?ST.prof.guard():null;}
 
 /* ---------- команды (всё через ST.do, значит отмена и возврат работают) ---------- */
-tok.add=function(name,l,d,role){name=tok.cleanName(name);var e=tok.checkName(ST.p,name);if(e)return {error:e};
+tok.add=function(name,l,d,role){var g=lockErr();if(g)return g;name=tok.cleanName(name);var e=tok.checkName(ST.p,name);if(e)return {error:e};
   l=tok.norm(l||'#888888');d=tok.norm(d||l);if(!l||!d)return {error:'Цвет не распознан. Примеры: #f59a23, rgb(245 154 35), rgba(0,0,0,.28).'};
-  return res(ST.do('новый токен '+name,function(x){x.tokens.light[name]=l;x.tokens.dark[name]=d;
-    x.tokens.info=x.tokens.info||{};x.tokens.info[name]={app:'',role:role||''};}));};
-tok.setVal=function(name,th,v){var c=tok.norm(v);if(!c)return {error:'Цвет не распознан. Примеры: #f59a23, #f59a23cc, rgb(245 154 35), rgba(0,0,0,.28).'};
+  return res(ST.do('новый токен '+name,function(x){ALL(x).forEach(function(q){var T=q.tokens;T.light[name]=l;T.dark[name]=d;
+    T.info=T.info||{};T.info[name]={app:'',role:role||''};});}));};
+tok.setVal=function(name,th,v){var g=lockErr();if(g)return g;var c=tok.norm(v);if(!c)return {error:'Цвет не распознан. Примеры: #f59a23, #f59a23cc, rgb(245 154 35), rgba(0,0,0,.28).'};
   if(tok.val(ST.p,th,name)===c)return {ok:true};
   return res(ST.do('цвет '+name+(th==='light'?' (светлая)':' (тёмная)'),function(x){x.tokens[th][name]=c;}));};
-tok.setMeta=function(name,f,v){v=String(v==null?'':v).trim();
+tok.setMeta=function(name,f,v){var g=lockErr();if(g)return g;v=String(v==null?'':v).trim();
   if(f==='app'&&v&&!/^--[a-z][a-z0-9-]*$/.test(v))return {error:'Имя в приложении пишется как CSS-переменная: --panel, --acc (латиница, цифры, дефис).'};
   var cur=((ST.p.tokens.info||{})[name]||{})[f]||'';if(cur===v)return {ok:true};
   return res(ST.do('токен '+name+': '+(f==='app'?'имя в приложении':'роль'),function(x){x.tokens.info=x.tokens.info||{};
@@ -141,14 +145,16 @@ tok.setMeta=function(name,f,v){v=String(v==null?'':v).trim();
 function renameRefs(x,old,nw,g){
   function fix(s){return s.replace(REF,function(m,gg,n){return (!!gg===!!g&&n===old)?'@'+(g?'g:':'')+nw:m;});}
   eachNode(x,function(n){eachStr(n.style,function(v,set){var nv=fix(v);if(nv!==v)set(nv);});});
-  Object.keys(x.tokens.grad||{}).forEach(function(k){((x.tokens.grad[k]||{}).stops||[]).forEach(function(s){if(typeof s.c==='string')s.c=fix(s.c);});});}
+  ALL(x).forEach(function(q){var G=(q.tokens&&q.tokens.grad)||{};
+    Object.keys(G).forEach(function(k){((G[k]||{}).stops||[]).forEach(function(s){if(typeof s.c==='string')s.c=fix(s.c);});});
+    Object.keys(q.text||{}).forEach(function(k){var t=q.text[k];if(isO(t)&&typeof t.c==='string')t.c=fix(t.c);});});} /* стили текста тоже ссылаются на токены (@tx) */
 function reorder(o,old,nw){var r={};Object.keys(o).forEach(function(k){r[k===old?nw:k]=o[k];});return r;}
-tok.rename=function(old,nw){nw=tok.cleanName(nw);if(nw===old)return {ok:true};var e=tok.checkName(ST.p,nw,old);if(e)return {error:e};
-  return res(ST.do('переименование '+old+' → '+nw,function(x){var T=x.tokens;
-    T.light=reorder(T.light,old,nw);T.dark=reorder(T.dark,old,nw);T.info=reorder(T.info||{},old,nw);renameRefs(x,old,nw,false);}));};
-tok.remove=function(name){var u=tok.usage(ST.p).c[name];
+tok.rename=function(old,nw){var g=lockErr();if(g)return g;nw=tok.cleanName(nw);if(nw===old)return {ok:true};var e=tok.checkName(ST.p,nw,old);if(e)return {error:e};
+  return res(ST.do('переименование '+old+' → '+nw,function(x){ALL(x).forEach(function(q){var T=q.tokens;
+    T.light=reorder(T.light,old,nw);T.dark=reorder(T.dark,old,nw);T.info=reorder(T.info||{},old,nw);});renameRefs(x,old,nw,false);}));};
+tok.remove=function(name){var g=lockErr();if(g)return g;var u=tok.usage(ST.p).c[name];
   if(u&&u.length)return {error:'Токен «'+name+'» используется: '+usedText(u)+'. Сначала замените его в этих местах, потом удалите.',used:u};
-  return res(ST.do('удаление токена '+name,function(x){delete x.tokens.light[name];delete x.tokens.dark[name];if(x.tokens.info)delete x.tokens.info[name];}));};
+  return res(ST.do('удаление токена '+name,function(x){ALL(x).forEach(function(q){var T=q.tokens;delete T.light[name];delete T.dark[name];if(T.info)delete T.info[name];});}));};
 
 /* ---------- градиенты: 2–3 стопа, стоп = токен («@имя») или свой цвет ---------- */
 tok.gradCheck=function(p,g){
@@ -162,24 +168,24 @@ tok.gradCheck=function(p,g){
     else if(!tok.parse(s.c))return 'Стоп '+(i+1)+': цвет не распознан.';}
   return '';};
 tok.gradCss=function(g){return 'linear-gradient('+(Number(g.angle)||0)+'deg,'+g.stops.map(function(s){return tok.css(s.c)+' '+(Number(s.at)||0)+'%';}).join(',')+')';};
-tok.addGrad=function(name){name=tok.cleanName(name);var e=tok.checkName(ST.p,name,'',true);if(e)return {error:e};
+tok.addGrad=function(name){var g=lockErr();if(g)return g;name=tok.cleanName(name);var e=tok.checkName(ST.p,name,'',true);if(e)return {error:e};
   var n=tok.names(ST.p),a=n[0]?'@'+n[0]:'#888888',b=n[1]?'@'+n[1]:'#444444';
-  return res(ST.do('новый градиент '+name,function(x){x.tokens.grad=x.tokens.grad||{};x.tokens.grad[name]={angle:180,stops:[{c:a,at:0},{c:b,at:100}]};}));};
-tok.setGrad=function(name,g){var e=tok.gradCheck(ST.p,g);if(e)return {error:e};
+  return res(ST.do('новый градиент '+name,function(x){ALL(x).forEach(function(q){q.tokens.grad=q.tokens.grad||{};q.tokens.grad[name]={angle:180,stops:[{c:a,at:0},{c:b,at:100}]};});}));};
+tok.setGrad=function(name,g){var le=lockErr();if(le)return le;var e=tok.gradCheck(ST.p,g);if(e)return {error:e};
   return res(ST.do('градиент '+name,function(x){x.tokens.grad[name]=g;}));};
-tok.renameGrad=function(old,nw){nw=tok.cleanName(nw);if(nw===old)return {ok:true};var e=tok.checkName(ST.p,nw,old,true);if(e)return {error:e};
-  return res(ST.do('переименование градиента '+old+' → '+nw,function(x){x.tokens.grad=reorder(x.tokens.grad,old,nw);renameRefs(x,old,nw,true);}));};
-tok.removeGrad=function(name){var u=tok.usage(ST.p).g[name];
+tok.renameGrad=function(old,nw){var g=lockErr();if(g)return g;nw=tok.cleanName(nw);if(nw===old)return {ok:true};var e=tok.checkName(ST.p,nw,old,true);if(e)return {error:e};
+  return res(ST.do('переименование градиента '+old+' → '+nw,function(x){ALL(x).forEach(function(q){q.tokens.grad=reorder(q.tokens.grad||{},old,nw);});renameRefs(x,old,nw,true);}));};
+tok.removeGrad=function(name){var g=lockErr();if(g)return g;var u=tok.usage(ST.p).g[name];
   if(u&&u.length)return {error:'Градиент «'+name+'» используется: '+usedText(u)+'. Сначала замените его, потом удалите.',used:u};
-  return res(ST.do('удаление градиента '+name,function(x){delete x.tokens.grad[name];}));};
+  return res(ST.do('удаление градиента '+name,function(x){ALL(x).forEach(function(q){delete (q.tokens.grad||{})[name];});}));};
 
 /* ---------- сырой цвет → токен (кнопку «сделать токеном» поставит Шаг 4 в инспекторе узла) ---------- */
 tok.promote=function(nodeId,path,color,name){name=tok.cleanName(name);
   var exists=tok.names(ST.p).indexOf(name)>=0;
-  if(!exists){var e=tok.checkName(ST.p,name);if(e)return {error:e};}
+  if(!exists){var g=lockErr();if(g)return g;var e=tok.checkName(ST.p,name);if(e)return {error:e};}
   var c=tok.norm(color);if(!exists&&!c)return {error:'Этот цвет нельзя сделать токеном: формат не распознан.'};
   return res(ST.do('сырой цвет → токен '+name,function(x){
-    if(!exists){x.tokens.light[name]=c;x.tokens.dark[name]=c;x.tokens.info=x.tokens.info||{};x.tokens.info[name]={app:'',role:''};}
+    if(!exists)ALL(x).forEach(function(q){var T=q.tokens;T.light[name]=c;T.dark[name]=c;T.info=T.info||{};T.info[name]={app:'',role:''};});
     var done=false;
     eachNode(x,function(n){if(done||n.id!==nodeId)return;var o=n.style;
       for(var i=0;i<path.length-1;i++){o=o&&o[path[i]];}

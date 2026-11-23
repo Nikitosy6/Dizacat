@@ -133,17 +133,20 @@ F.report=function(p){
 
 /* ---------- команды (всё через ST.do: отмена и возврат работают) ---------- */
 F.setRole=function(role,family){
+  var g=ST.prof&&ST.prof.guard();if(g)return g; /* встроенный профиль не правится (Шаг 1А) */
   if(F.ROLES.indexOf(role)<0)return {error:'Неизвестная роль шрифта.'};
   if(!find(family))return {error:'Такого шрифта нет в списке студии.'};
   if(F.level(family)==='bad')return {error:'В шрифте «'+family+'» нет русских букв ('+F.miss(family)+'). Для интерфейса на русском он не подходит.'};
   if((ST.p.fonts||{})[role]===family)return {ok:true};
   return res(ST.do('шрифт роли «'+F.ROLE_NAME[role]+'»',function(x){x.fonts=x.fonts||{};x.fonts[role]=family;}));};
 F.setText=function(key,patch){
+  var g=ST.prof&&ST.prof.guard();if(g)return g;
   var cur=(ST.p.text||{})[key];if(!cur)return {error:'Такого стиля текста нет.'};
   var n=Object.assign({},cur,patch),e=F.checkT(n);if(e)return {error:e};
   if(JSON.stringify(n)===JSON.stringify(cur))return {ok:true};
   return res(ST.do('текст «'+F.name(key)+'»',function(x){x.text[key]=n;}));};
 F.resetText=function(key){
+  var g=ST.prof&&ST.prof.guard();if(g)return g;
   var d=null;F.PRESETS.forEach(function(x){if(x.k===key)d=x;});if(!d)return {error:'Такого стиля текста нет.'};
   return res(ST.do('сброс текста «'+d.n+'»',function(x){x.text[key]=JSON.parse(JSON.stringify(d.t));}));};
 })();

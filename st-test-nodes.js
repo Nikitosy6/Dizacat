@@ -11,7 +11,7 @@ function node(id){var f=ST.nodes.get(id);return f&&f.n;}
 T('схема: миграция 3→4 дополняет узлы, 4→5 только поднимает номер, 5→6 вводит профили, повторный запуск ничего не меняет',function(){
   var a={schema:3,meta:{},tokens:{light:{},dark:{},info:{},grad:{}},components:[],assets:{},fonts:{},text:{},
     screens:[{id:'s',name:'x',w:390,h:844,root:{id:'r',type:'frame',children:[{id:'a',type:'text'}]}}]};
-  eq(ST.validate(a),'');var m=ST.migrate(a);eq(m.schema,ST.SCHEMA);eq(ST.SCHEMA,7);
+  eq(ST.validate(a),'');var m=ST.migrate(a);eq(m.schema,ST.SCHEMA);eq(ST.SCHEMA,6);
   var c=m.screens[0].root.children[0];eq(typeof c.layout,'object');eq(typeof c.style,'object');eq(Array.isArray(c.children),true);eq(typeof c.name,'string');
   eq(JSON.stringify(ST.migrate(JSON.parse(JSON.stringify(m)))),JSON.stringify(m));});
 T('проверка дерева: неизвестный тип, нет id, битый стиль, слишком глубоко',function(){fresh();
