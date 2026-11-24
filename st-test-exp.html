@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Тесты экспорта (Шаг 7)</title>
+<link rel="stylesheet" href="fonts/fonts.css"><link rel="stylesheet" href="studio.css"><link rel="stylesheet" href="studio-fonts.css"><link rel="stylesheet" href="studio-nodes.css"><link rel="stylesheet" href="studio-comp.css">
+<style>body{font:16px system-ui;padding:16px;display:block}.ok{color:#1a7f37}.bad{color:#c0392b;font-weight:700}#sum{font-size:20px;margin:12px 0}</style></head>
+<body><h1>Тесты экспорта Catworking Studio</h1><div id="sum">выполняются…</div><div id="out"></div><div class="st-toast" id="st-toast"></div>
+<script src="st-tokens.js"></script><script src="st-fonts.js"></script><script src="st-store.js"></script><script src="st-nodes.js"></script><script src="st-nstyle.js"></script><script src="st-io.js"></script><script src="st-canvas.js"></script><script src="st-gest.js"></script><script src="st-tokui.js"></script><script src="st-fontui.js"></script><script src="st-nodeui.js"></script><script src="st-insp.js"></script><script src="st-profdata.js"></script><script src="st-profiles.js"></script><script src="st-profui.js"></script><script src="st-icons.js"></script><script src="st-comp.js"></script><script src="st-presets.js"></script><script src="st-compui.js"></script><script src="st-ui.js"></script><script src="st-mockups.js"></script><script src="st-import.js"></script><script src="st-impdom.js"></script><script src="st-impcmp.js"></script><script src="st-impui.js"></script><script src="st-exptaken.js"></script><script src="st-expcss.js"></script><script src="st-exphtml.js"></script><script src="st-exppack.js"></script><script src="st-expchk.js"></script><script src="st-expui.js"></script>
+<script>
+ST.io.cfg={db:'catworking-studio-test',ls:'st-test-current'}; /* не трогаем рабочие данные */
+var out=document.getElementById('out'),bad=0,all=0,q=Promise.resolve();
+function T(name,fn){q=q.then(function(){return fn();}).then(function(){all++;out.insertAdjacentHTML('beforeend','<div class="ok">✓ '+name+'</div>');},
+  function(e){all++;bad++;out.insertAdjacentHTML('beforeend','<div class="bad">✗ '+name+': '+ST.esc(e&&e.message||e)+'</div>');});}
+function eq(a,b,m){if(a!==b)throw new Error((m||'')+' ожидалось '+JSON.stringify(b)+', получено '+JSON.stringify(a));}
+window.addEventListener('load',function(){
+  var s=document.createElement('script');s.src='st-test-exp.js';
+  s.onload=function(){q.then(function(){var m=document.getElementById('sum');m.textContent=bad?('Провалено: '+bad+' из '+all):('Все '+all+' тестов пройдены');m.className=bad?'bad':'ok';});};
+  document.body.appendChild(s);
+});
+</script></body></html>

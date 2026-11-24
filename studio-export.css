@@ -1,0 +1,18 @@
+/* Catworking Studio: окно «Экспорт» (Шаг 7). Префикс .st-exp-. Цвета только через переменные студии (светлая и тёмная тема студии). */
+.st-exp .st-mdl-box{max-width:640px;max-height:92vh;max-height:92dvh;padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))}
+.st-exp-box .st-mdl-body{overflow:auto;-webkit-overflow-scrolling:touch}
+.st-exp-st{margin:12px 0;padding:10px 12px;border:1px solid var(--st-line);border-radius:12px;background:var(--st-bg);overflow-wrap:anywhere}
+.st-exp-st ul,.st-exp-blk ul{margin:6px 0 0;padding-left:20px}
+.st-exp-st li,.st-exp-blk li{margin-bottom:4px}
+.st-exp-ok{border-color:#2e9e5b}
+.st-exp-bad{border-color:var(--st-danger)}
+.st-exp-bad .st-b{margin-top:8px}
+.st-exp-err{color:var(--st-danger);overflow-wrap:anywhere}
+.st-exp-blk{margin:12px 0;padding:10px 12px;border:1px solid var(--st-line);border-radius:12px}
+.st-exp-h{display:flex;flex-direction:column;gap:2px;margin-bottom:8px;overflow-wrap:anywhere}
+.st-exp-h .st-mut{font-size:13px}
+.st-exp-btns{display:flex;flex-wrap:wrap;gap:8px}
+.st-exp-blk summary{min-height:44px;display:flex;align-items:center;cursor:pointer}
+.st-exp-pre{margin:0;max-height:240px;overflow:auto;padding:8px;border-radius:8px;background:var(--st-bg);font:13px/1.4 ui-monospace,Menlo,Consolas,monospace;white-space:pre;-webkit-user-select:text;user-select:text}
+.st-b[disabled]{opacity:.5;cursor:not-allowed}
+@media (max-width:640px){#st-export{display:none}} /* на телефоне шапка узкая: экспорт открывается из меню проекта */

@@ -35,6 +35,7 @@ function backup(){ /* страховка: текущий проект уходи
 ui.menu=function(){
   var items=[['new','Новый проект'],['open','Открыть файл .json'],['save','Сохранить в файл .json'],['snaps','Версии (автокопии)']];
   if(ST.impui)items.push(['examples','Примеры (макеты «Предметы»)'],['impmk','Импорт разметки']);
+  if(ST.expui)items.push(['export','Экспорт экрана (пакет для ИИ-кодера)']);
   return ui.modal({title:ST.title(),html:items.map(function(x){
     return '<button class="st-b st-row" data-k="'+x[0]+'">'+x[1]+'</button>';}).join(''),buttons:[{k:'x',t:'Закрыть'}]})
   .then(function(k){
@@ -51,6 +52,7 @@ ui.menu=function(){
     if(k==='snaps')return ui.snaps();
     if(k==='examples')return ST.impui.examples();
     if(k==='impmk')return ST.impui.paste();
+    if(k==='export')return ST.expui.open();
   });
 };
 ui.snaps=function(){
@@ -111,6 +113,7 @@ function bind(){
     if(!t){if(ui.sheet&&e.target.closest('#st-main'))ui.sheetTo(ui.sheet);return;}
     var a=t.getAttribute('data-st');
     if(a==='menu')ui.menu();
+    else if(a==='export'){if(ST.expui)ST.expui.open();}
     else if(a==='undo')ST.undo();
     else if(a==='redo')ST.redo();
     else if(a==='theme')toggleTheme();
